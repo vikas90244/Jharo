@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from decouple import config 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
+from dotenv import load_dotenv
+load_dotenv()
+import os 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -34,9 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'corsheaders',
+    'rest_framework_simplejwt',
+    'accounts',
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -46,6 +55,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
+CORS_ALLOW_CREDENTIALS = True
+
+FRONTEND_URL=os.getenv("FRONTEND_URL")
+CORS_ALLOWED_ORIGINS = [
+   FRONTEND_URL,
+]
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
@@ -107,8 +123,27 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'accounts.authentication.CookieJWTAuthentication',
+    )
+}
+
+# Print emails to the console for development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' 
+
+
+# settings.py
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'vikasrj9123@gmail.com'      # Your actual gmail address
+EMAIL_HOST_PASSWORD = 'sjcj azbb qtzi pthf' # The app password you generated
+DEFAULT_FROM_EMAIL = 'vikasrj9123@gmail.com'

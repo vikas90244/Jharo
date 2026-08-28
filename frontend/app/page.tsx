@@ -2,7 +2,7 @@ import React from 'react'
 
 function Home() {
   return (
-    <div>Jharo</div>
+    <div className="font-ui">Jharo</div>
   )
 }
 

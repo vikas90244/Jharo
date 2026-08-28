@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <!-- Creamy Background -->
+  <rect width="100" height="100" fill="#F4EFE6" />
+  
+  <!-- Left Page Fill -->
+  <path d="M 12 25 Q 31 18 50 30 L 50 85 Q 31 73 12 80 Z" fill="#FFFCF5" stroke="#5C4D41" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  
+  <!-- Right Page Fill -->
+  <path d="M 88 25 Q 69 18 50 30 L 50 85 Q 69 73 88 80 Z" fill="#FFFCF5" stroke="#5C4D41" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+  
+  <!-- Center Spine -->
+  <line x1="50" y1="30" x2="50" y2="85" stroke="#5C4D41" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Left Page Lines (Warm Taupe) -->
+  <g stroke="#938477" stroke-width="3" stroke-linecap="round">
+    <line x1="24" y1="42" x2="42" y2="38" />
+    <line x1="24" y1="52" x2="42" y2="48" />
+    <line x1="24" y1="62" x2="42" y2="58" />
+  </g>
+
+  <!-- Right Page Window Grid (Soft Slate/Teal) -->
+  <g stroke="#8A9EA3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <rect x="58" y="38" width="20" height="20" rx="4" />
+    <line x1="68" y1="38" x2="68" y2="58" />
+    <line x1="58" y1="48" x2="78" y2="48" />
+  </g>
+</svg>

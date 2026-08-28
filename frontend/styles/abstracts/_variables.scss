@@ -1,25 +1,10 @@
 :root {
-
-  /* Paper */
-
-  --paper: #F8F4EA;
-  --paper-dark: #EFE9D5;
-
-  /* Text */
-
-  --text-primary: #2B2B2B;
-  --text-secondary: #666666;
-
-  /* Borders */
-
-  --border: #DDD3C2;
-
-  /* Accent */
-
-  --accent: #8C6B4F;
-
-  /* Shadows */
-
-  --shadow-light: rgba(0,0,0,0.06);
+--paper: #F8F4EA;          /* unchanged */
+--paper-dark: #EFE9D5;     /* unchanged */
+--ink: #33302A;            /* was #2B2B2B — warmed, less harsh than true black */
+--text-secondary: #736C5E; /* was #666666 — warmed to match paper */
+--border: #DDD3C2;         /* unchanged */
+--accent-wood: #8C6B4F;    /* unchanged — your accent was already calm */
+--accent-sky: #7C93A0;     /* new — a dusty blue-grey, used only for the "light" dot */
 
 }

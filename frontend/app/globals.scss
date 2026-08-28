@@ -1,7 +1,5 @@
-@use "./abstracts/variables";
-@use "./abstracts/typography";
+@use "../styles/abstracts/variables";
+@use "../styles/abstracts/mixins";
+@use "../styles/abstracts/typography";
 
-@use "./base/reset";
-@use "./base/base";
-
-@use "./themes/light";
+@use "../styles/base/reset";
