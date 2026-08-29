@@ -27,7 +27,7 @@ class RegisterView(APIView):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         
         # Create verification link (adjust domain for production)
-        verify_link = f"{settings.FRONTEND_URL}verify/{uid}/{token}/"
+        verify_link = f"{settings.FRONTEND_URL}/verify/{uid}/{token}/"
         
         send_mail(
         subject='Verify your email for Jharo',
@@ -119,8 +119,25 @@ class CookieTokenRefreshView(APIView):
             return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
 
 class LogoutView(APIView):
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+    
     def post(self, request):
         response = Response({"message": "Successfully logged out."})
         response.delete_cookie('access')
         response.delete_cookie('refresh')
         return response
+
+class CurrentUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        return Response({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+        })

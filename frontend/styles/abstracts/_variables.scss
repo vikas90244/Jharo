@@ -1,10 +1,28 @@
 :root {
---paper: #F8F4EA;          /* unchanged */
---paper-dark: #EFE9D5;     /* unchanged */
---ink: #33302A;            /* was #2B2B2B — warmed, less harsh than true black */
---text-secondary: #736C5E; /* was #666666 — warmed to match paper */
---border: #DDD3C2;         /* unchanged */
---accent-wood: #8C6B4F;    /* unchanged — your accent was already calm */
---accent-sky: #7C93A0;     /* new — a dusty blue-grey, used only for the "light" dot */
+  // Background
+  --paper: #f8f4ea;
+  --paper-dark: #efe9d5;
 
+  // Text
+  --ink: #33302a;
+  --text-secondary: #736c5e;
+
+  // Borders
+  --border: #ddd3c2;
+
+  // Accents
+  --accent-wood: #8c6b4f;
+  --accent-sky: #7c93a0;
+
+  // Form
+  --input-background: rgba(255, 255, 255, 0.45);
+
+  // Layout
+  --content-width: 1120px;
+  --form-width: 400px;
+
+  // Radius
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
 }

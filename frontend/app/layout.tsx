@@ -1,6 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, Literata } from "next/font/google";
+import { Inter, Literata, Geist } from "next/font/google";
 import "./globals.scss";
+import "./global.css"
+import { cn } from "@/lib/utils";
+import QueryProvider from "./QueryProvider";
+import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/components/auth/auth-provider";
+import { ThemeProvider } from "@/components/theme/theme-provider";
+import { ThemeScript } from "./theme-script";
+
+const geist = Geist({
+  subsets:['latin'],
+  variable:'--font-sans'
+});
 
 export const inter = Inter({
   subsets: ["latin"],
@@ -21,15 +33,30 @@ export const metadata: Metadata = {
     "A reading workspace that helps readers understand books without leaving them.",
 };
 
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body className={`${inter.variable} ${literata.variable}`}>
-        {children}
+        <ThemeProvider>
+          <QueryProvider>
+            <AuthProvider>
+              {children}
+              <Toaster
+                position="bottom-right"
+                richColors
+                closeButton
+               />
+            </AuthProvider>
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

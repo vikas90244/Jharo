@@ -1,0 +1,157 @@
+/* ================================
+   Default Root Variables (Light Theme Fallback)
+================================ */
+
+:root {
+  // Layout
+  --content-width: 1120px;
+  --form-width: 400px;
+
+  // Radius
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  // Transitions
+  --transition-fast: 150ms ease;
+  --transition-base: 220ms ease;
+  --transition-slow: 320ms ease;
+}
+
+/* ================================
+   Light Theme (Default)
+================================ */
+
+:root,
+html[data-theme="light"] {
+  // Background colors
+  --paper: #f8f4ea;
+  --paper-dark: #efe9d5;
+  --paper-light: #fdfbf5;
+  --surface: rgba(255, 255, 255, 0.5);
+  --surface-elevated: rgba(255, 255, 255, 0.85);
+
+  // Text colors
+  --ink: #33302a;
+  --text-primary: #33302a;
+  --text-secondary: #736c5e;
+  --text-tertiary: #9a9287;
+  --text-inverse: #fdfbf5;
+
+  // Border colors
+  --border: #ddd3c2;
+  --border-subtle: #eae4d8;
+  --border-hover: #c8bda9;
+
+  // Accent colors
+  --accent-wood: #8c6b4f;
+  --accent-wood-hover: #a5806a;
+  --accent-sky: #7c93a0;
+  --accent-sky-hover: #6a7f8a;
+
+  // Interactive colors
+  --interactive-bg: rgba(255, 255, 255, 0.45);
+  --interactive-hover: rgba(255, 255, 255, 0.6);
+  --interactive-active: rgba(51, 48, 42, 0.05);
+
+  // Status colors
+  --success: #5a7c5e;
+  --error: #a64b3b;
+  --warning: #9a7c3b;
+  --info: #5c7a8f;
+
+  // Shadows
+  --shadow-sm: 0 2px 8px rgba(51, 48, 42, 0.06);
+  --shadow-md: 0 4px 20px rgba(51, 48, 42, 0.08);
+  --shadow-lg: 0 8px 32px rgba(51, 48, 42, 0.12);
+  --shadow-panel: -8px 0 32px rgba(51, 48, 42, 0.12);
+
+  // Overlays
+  --overlay: rgba(51, 48, 42, 0.3);
+  --overlay-heavy: rgba(51, 48, 42, 0.5);
+}
+
+/* ================================
+   Dark Theme
+================================ */
+
+html[data-theme="dark"] {
+  // Background colors
+  --paper: #1a1814;
+  --paper-dark: #0f0e0c;
+  --paper-light: #252119;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-elevated: rgba(255, 255, 255, 0.08);
+
+  // Text colors
+  --ink: #e8e4dc;
+  --text-primary: #e8e4dc;
+  --text-secondary: #b8b2a5;
+  --text-tertiary: #8a8478;
+  --text-inverse: #1a1814;
+
+  // Border colors
+  --border: #3a352b;
+  --border-subtle: #2a2620;
+  --border-hover: #4a443a;
+
+  // Accent colors
+  --accent-wood: #b8906f;
+  --accent-wood-hover: #d0a887;
+  --accent-sky: #8fa8b5;
+  --accent-sky-hover: #a5bcc8;
+
+  // Interactive colors
+  --interactive-bg: rgba(255, 255, 255, 0.06);
+  --interactive-hover: rgba(255, 255, 255, 0.1);
+  --interactive-active: rgba(255, 255, 255, 0.12);
+
+  // Status colors
+  --success: #6d9c70;
+  --error: #c87669;
+  --warning: #c5a663;
+  --info: #7a9db2;
+
+  // Shadows
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-panel: -8px 0 32px rgba(0, 0, 0, 0.6);
+
+  // Overlays
+  --overlay: rgba(0, 0, 0, 0.5);
+  --overlay-heavy: rgba(0, 0, 0, 0.7);
+}
+
+/* ================================
+   Theme Transitions
+================================ */
+
+html,
+body {
+  background-color: var(--paper);
+  color: var(--text-primary);
+  transition: background-color var(--transition-base),
+              color var(--transition-base);
+}
+
+// Smooth transitions for theme changes
+* {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-duration: var(--transition-base);
+  transition-timing-function: ease;
+}
+
+// Disable transitions for focused/active states for better responsiveness
+button:focus,
+button:active,
+input:focus,
+input:active,
+textarea:focus,
+textarea:active,
+select:focus,
+select:active,
+a:focus,
+a:active {
+  transition-duration: 0ms;
+}
