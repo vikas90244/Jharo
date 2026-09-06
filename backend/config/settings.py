@@ -19,7 +19,8 @@ load_dotenv()
 import os 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
+MEDIA_URL='/media/'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -38,10 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts',
+    'library',
     'rest_framework',
     'corsheaders',
+    'django_extensions',
     'rest_framework_simplejwt',
-    'accounts',
+   
 ]
 
 MIDDLEWARE = [

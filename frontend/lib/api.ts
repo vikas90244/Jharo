@@ -46,3 +46,28 @@ export async function api<T>(
 
   return data;
 }
+
+
+export async function apiBlob(
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<Blob> {
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    ...options,
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+
+    throw new ApiError(
+      data?.error ||
+        data?.detail ||
+        "Something went wrong! Please try again",
+      response.status,
+      data
+    );
+  }
+
+  return response.blob();
+}
