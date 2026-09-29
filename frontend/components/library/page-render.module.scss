@@ -1,0 +1,282 @@
+// Individual page rendering styles
+
+// Single page with ONE WIDE COLUMN - BIGGER for laptops
+
+.pageContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: visible;
+}
+
+.pageContent {
+  position: relative;
+  width: 100%;
+  max-width: 1400px;
+  height: 100%;
+  margin: 0 auto; // Center the column
+  background: transparent;
+  padding: 2rem 1.5rem 0rem 1.5rem;
+  overflow: visible;
+  
+  // SINGLE COLUMN LAYOUT
+  display: block;
+  font-size: 18px; // BIGGER base font size (was 16px)
+  
+  @media (max-width: 1024px) {
+    max-width: 100%;
+    padding: 0.75rem 1.25rem 0;
+    font-size: 17px;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0.5rem 0.75rem 0;
+    font-size: 16px;
+  }
+}
+
+// Image blocks - centered in the wide column
+.imageBlockWrapper {
+  display: block;
+  margin: 1.25rem 0;
+  text-align: center;
+  max-width: 100%;
+}
+
+.imageBlock {
+  display: inline-block;
+  max-width: 100%;
+  max-height: 72dvh;
+  height: auto;
+  object-fit: contain;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 768px) {
+    max-height: 62dvh;
+  }
+}
+
+// Text blocks - wide comfortable paragraphs
+.textBlock {
+  display: block;
+  margin: 0 0 1.5em 0; // Good paragraph spacing
+  color: #2b2622;
+  user-select: text;
+  line-height: 1.6; // More comfortable for wide text
+  text-align: justify;
+  hyphens: auto;
+  
+  // Premium Georgia rendering
+  font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', Palatino, serif !important;
+  letter-spacing: 0.015em;
+  font-weight: 400;
+  word-spacing: 0.05em;
+  
+  // Maximum smoothness
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-synthesis: none;
+  
+  // OpenType features
+  font-feature-settings: 
+    "kern" 1,
+    "liga" 1,
+    "clig" 1;
+  
+  // Text selection
+  &::selection {
+    background: rgba(140, 107, 79, 0.3);
+    color: #2b2622;
+  }
+  
+  &:first-child {
+    margin-top: 0;
+  }
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.chapterHeading {
+  font-size: 1.2em !important;
+  font-weight: 700;
+  text-align: left;
+  letter-spacing: 0;
+}
+
+// Clickable words
+.clickableWord {
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-radius: 3px;
+  padding: 2px 1px;
+  
+  &:hover {
+    background: rgba(140, 107, 79, 0.15);
+    color: #1a1410;
+  }
+  
+  &:active {
+    background: rgba(140, 107, 79, 0.25);
+  }
+}
+
+// Word Popup Backdrop
+.popupBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(43, 38, 34, 0.4); // Warm dark overlay
+  backdrop-filter: blur(3px);
+  z-index: 999;
+  animation: fadeIn 0.15s ease;
+}
+
+// Word Popup - Cream aesthetic with smart positioning
+.wordPopup {
+  position: fixed;
+  min-width: 320px;
+  max-width: 400px;
+  background: #f4ead5; // Cream background (same as pages)
+  border: 2px solid #d4c4a8; // Warm border
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(43, 38, 34, 0.25);
+  z-index: 1000;
+  animation: popupSlideIn 0.2s ease-out;
+}
+
+// Popup appearing below word
+.popupBottom {
+  transform-origin: top left;
+}
+
+// Popup appearing above word
+.popupTop {
+  transform-origin: bottom left;
+}
+
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.popupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid #d4c4a8; // Warm divider
+  background: #ebe3d0; // Slightly darker cream for header
+}
+
+.popupWord {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2b2622; // Dark brown text
+  margin: 0;
+  font-family: Georgia, serif;
+}
+
+.popupClose {
+  background: transparent;
+  border: none;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: #8c6b4f; // Warm brown
+  cursor: pointer;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  
+  &:hover {
+    background: rgba(140, 107, 79, 0.2); // Light brown hover
+    color: #2b2622;
+  }
+  
+  &:active {
+    background: rgba(140, 107, 79, 0.3);
+  }
+}
+
+.popupContent {
+  padding: 1.25rem;
+  background: #f4ead5; // Cream content area
+}
+
+.popupDefinition,
+.popupExample {
+  margin: 0 0 1rem 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #3d3530; // Warm dark text
+  
+  strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2b2622; // Dark brown
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Remove old absolute positioned span styles
+.textSpan {
+  // Not used anymore
+}
+
+// Dark theme adjustments
+html[data-theme='dark'] {
+  .readerContainer {
+    background: #3a3530; // Warm dark sepia
+  }
+  
+  .pageContainer {
+    background: #2a2520; // Dark cream pages
+  }
+
+  .textSpan {
+    color: #d4c4a8;
+    
+    &::selection {
+      background: rgba(184, 144, 111, 0.3);
+      color: #d4c4a8;
+    }
+  }
+}
+
+// Light mode explicit settings
+html[data-theme='light'] {
+  .readerContainer {
+    background: #e8dcc4;
+  }
+  
+  .pageContainer {
+    background: #f4ead5;
+  }
+  
+  .textSpan {
+    color: #2b2622;
+  }
+}

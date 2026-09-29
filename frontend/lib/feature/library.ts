@@ -1,71 +1,100 @@
-import { apiBlob } from "../api";
 import { api } from "../api";
 
-export function retreiveResource(id:number){
-    return apiBlob(`/resources/${id}/stream`);
+export interface Resource {
+  id: number;
+  title: string;
+  no_of_pages: number;
+  cover_image: string | null;
+  processing_status: 'pending' | 'processing' | 'ready' | 'failed';
+  file_size: number;
+  created_at: string;
+  updated_at: string;
 }
-export interface RetreiveResourcePayload{
-    id: number ;
-    start:number; 
-    end: number;
+
+export interface UploadResourcePayload {
+  title: string;
+  object_path: File;
 }
-export interface RetreiveResourceResponse{
-    pages:Page[];
+
+// Block types from PDF parsing
+export interface Span {
+  text: string;
+  bbox: [number, number, number, number];
+  size: number;
+  flags: number;
+  font: string;
+  color: number;
 }
-export interface Page{
-    id:number;
-    page_number: number; 
-    width: number; 
-    height: number;
-    data: Block[];
-    resource:number;
-}
-export type Block = ImageBlock | TextBlock;
-export interface ImageBlock {
-    type: 1;
-    number: number;
-    bbox:[number, number ,number , number];
-    width:number ;
-    height:number; 
-    colorspace:number;
-    xres:number;
-    yres:number;
-    bpc:number;
-    transform:number[];
-    size:number;
-    mask?: number | null;
-    src: string;
+
+export interface Line {
+  bbox: [number, number, number, number];
+  wmode: number;
+  dir: [number, number];
+  spans: Span[];
 }
 
 export interface TextBlock {
-    type:0;
-    number:number;
-    flags:number;
-    bbox:[number ,number, number, number];
-    lines:Line[]
+  type: 0; // 0 for text
+  bbox: [number, number, number, number];
+  number: number;
+  lines: Line[];
 }
-export interface Line {
-    spans:Span[];
-    wmode:number;
-    dir:[number ,number];
-    bbox:[number ,number ,number ,number];
 
+export interface ImageBlock {
+  type: 1; // 1 for image
+  bbox: [number, number, number, number];
+  number: number;
+  src: string;
 }
-export interface Span {
-    size: number;
-    flags:number;
-    bidi:number;
-    char_flags:number;
-    font:string;
-    color:number; 
-    alpha:number;
-    ascender:number;
-    descender:number;
-    text: string;
-    origin:[number, number];
-    bbox:[number ,number ,number, number];
 
+export type Block = TextBlock | ImageBlock;
+
+// Page structure as returned by backend
+export interface Page {
+  id: number;
+  resource: number;
+  page_number: number;
+  width: number;
+  height: number;
+  data: Block[];
 }
-export function retreiveResourceRange({id, start, end}:RetreiveResourcePayload){
-    return api<Page[]>(`/resources/${id}/pages/?start=${start}&end=${end}`)
+
+// API FUNCTIONS
+
+/**
+ * Fetch all books for the current user
+ */
+export function getMyResources() {
+  return api<Resource[]>("/resources/my-books/");
+}
+
+/**
+ * Upload a new book (PDF)
+ */
+export async function uploadResource(payload: UploadResourcePayload) {
+  const formData = new FormData();
+  formData.append('title', payload.title);
+  formData.append('object_path', payload.object_path);
+
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/resources/upload/`, {
+    method: 'POST',
+    credentials: 'include',
+    body: formData,
+    // Don't set Content-Type header - browser will set it with boundary for FormData
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(data?.error || data?.detail || 'Upload failed');
+  }
+
+  return data as Resource;
+}
+
+/**
+ * Get pages for a specific resource
+ */
+export function getResourcePages(resourceId: number, start: number = 0, end: number = 50) {
+  return api<Page[]>(`/resources/${resourceId}/pages/?start=${start}&end=${end}`);
 }

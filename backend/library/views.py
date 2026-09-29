@@ -1,14 +1,81 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-# Create your views here.
+from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.http import FileResponse, Http404
 from rest_framework.response import Response
 from .models import Resource, Page
 from .splitter import split_resource
-from .serializers import PageSerializer
+from .serializers import PageSerializer, ResourceSerializer, ResourceUploadSerializer
+
+
+
+
+class ResourceUploadView(APIView):
+    """Upload a new book (PDF)"""
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+    
+    def post(self, request):
+        serializer = ResourceUploadSerializer(
+            data=request.data,
+            context={'request': request}
+        )
+        
+        if serializer.is_valid():
+            resource = serializer.save()
+            
+            # Trigger processing immediately after upload
+            try:
+                split_resource(resource.id, request)
+            except Exception as e:
+                # If processing fails, mark resource as failed
+                resource.processing_status = 'failed'
+                resource.save()
+                return Response(
+                    {'error': f'Processing failed: {str(e)}'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
+            # Refresh resource from DB to get updated status and cover
+            resource.refresh_from_db()
+            
+            return Response(
+                ResourceSerializer(
+                    resource,
+                    context={'request': request},
+                ).data,
+                status=status.HTTP_201_CREATED
+            )
+        
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+class UserResourcesView(APIView):
+    """Get all books for the logged-in user"""
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        resources = Resource.objects.filter(
+            owner=request.user
+        ).order_by('-created_at')
+        
+        serializer = ResourceSerializer(
+            resources,
+            many=True,
+            context={'request': request},
+        )
+        return Response(serializer.data)
+
+
+
+
 class ResourceStreamView(APIView):
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
     
     def get(self, request, pk):
         try:
@@ -21,23 +88,27 @@ class ResourceStreamView(APIView):
                 content_type='application/pdf'
             )
         except Resource.DoesNotExist:
-            raise Http404("resource not found ")
+            raise Http404("resource not found")
+
 
 class PrepareResourceView(APIView):
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
+    
     def get(self, request, pk):
-        data= split_resource(pk, request)
+        data = split_resource(pk, request)
         return Response(data=data)
 
+
 class ResourceRangeView(APIView):
-    permission_classes=[AllowAny]
+    permission_classes = [AllowAny]
+    
     def get(self, request, pk):
-        start=request.query_params.get("start")
-        end=request.query_params.get("end")
-        pages=Page.objects.filter(
+        start = request.query_params.get("start")
+        end = request.query_params.get("end")
+        pages = Page.objects.filter(
             resource__id=pk,
             page_number__gte=start,
             page_number__lte=end
         ).order_by("page_number")
-        serializer= PageSerializer(pages, many=True)
+        serializer = PageSerializer(pages, many=True)
         return Response(serializer.data)

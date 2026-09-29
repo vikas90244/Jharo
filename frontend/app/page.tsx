@@ -1,6 +1,20 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from "next/link";
+import { useAuth } from '@/components/auth/auth-provider';
 
 export default function Home() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push('/library');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
   return (
     <main className="landing-page">
       <header className="landing-header">

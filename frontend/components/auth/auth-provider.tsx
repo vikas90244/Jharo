@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, ReactNode, useRef } from "react";
 import { useCurrentUser, useRefreshToken } from "@/hooks/use-auth";
 import type { User } from "@/lib/feature/auth";
+import { ApiError } from "@/lib/api";
 
 interface AuthContextType {
   user: User | null;
@@ -14,11 +15,30 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { data: user, isLoading, error, refetch } = useCurrentUser();
-  const refreshMutation = useRefreshToken();
+  const { mutate: refreshToken } = useRefreshToken();
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const refreshAttemptedRef = useRef(false);
 
-  // Auto-refresh token every 4 minutes (JWT access token usually expires in 5 minutes)
   useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
+    if (
+      !user &&
+      error instanceof ApiError &&
+      error.status === 401 &&
+      !refreshAttemptedRef.current
+    ) {
+      refreshAttemptedRef.current = true;
+      refreshToken(undefined, {
+        onSuccess: () => {
+          refetch();
+        },
+      });
+      return;
+    }
+
     if (!user) {
       if (refreshIntervalRef.current) {
         clearInterval(refreshIntervalRef.current);
@@ -27,10 +47,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    refreshAttemptedRef.current = false;
     refreshIntervalRef.current = setInterval(() => {
-      refreshMutation.mutate(undefined, {
+      refreshToken(undefined, {
         onSuccess: () => {
-          // Refetch user data after successful token refresh
           refetch();
         },
       });
@@ -41,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearInterval(refreshIntervalRef.current);
       }
     };
-  }, [user, refreshMutation, refetch]);
+  }, [error, isLoading, refreshToken, refetch, user]);
 
   const value: AuthContextType = {
     user: user || null,

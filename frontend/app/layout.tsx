@@ -14,12 +14,12 @@ const geist = Geist({
   variable:'--font-sans'
 });
 
-export const inter = Inter({
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-ui",
 });
 
-export const literata = Literata({
+const literata = Literata({
   subsets: ["latin"],
   variable: "--font-reading",
 });
