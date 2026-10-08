@@ -26,7 +26,7 @@ interface SettingsPanelProps {
 export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   const { user } = useAuth();
   const logoutMutation = useLogout();
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
   const [notifications, setNotifications] = useState(true);
 
   const handleLogout = () => {

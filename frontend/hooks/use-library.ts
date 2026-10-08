@@ -52,6 +52,7 @@ export function useResourcePages(resourceId: number, start: number = 0, end: num
     queryKey: RESOURCE_PAGES_QUERY_KEY(resourceId, start, end),
     queryFn: () => getResourcePages(resourceId, start, end),
     enabled: !!resourceId,
+    placeholderData: (previousPages) => previousPages,
     staleTime: 10 * 60 * 1000, 
   });
 }

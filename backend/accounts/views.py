@@ -1,7 +1,8 @@
 
 # Create your views here.
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
@@ -11,6 +12,7 @@ from rest_framework import permissions, status
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.conf import settings 
+from rest_framework.permissions import AllowAny
 
 class RegisterView(APIView):
     def post(self, request):
@@ -28,14 +30,33 @@ class RegisterView(APIView):
         
         # Create verification link (adjust domain for production)
         verify_link = f"{settings.FRONTEND_URL}/verify/{uid}/{token}/"
-        
-        send_mail(
-        subject='Verify your email for Jharo',
-        message=f'Click this link to verify: {verify_link}',
-        from_email='vikasrj9123@gmail.com',
-        recipient_list=[email],
-        fail_silently=False,
-    )
+        html_content= render_to_string(
+            "emails/verify_email.html", 
+            {
+                "verification_url":verify_link, 
+                "expiry_minutes":30
+            }
+        )
+        email_message = EmailMultiAlternatives(
+            subject="Verify your email — Welcome to Jharo",
+            body=(
+                "Welcome to Jharo!\n\n"
+                "Please verify your email to finish "
+                "creating your account.\n\n"
+                f"Verify your email: {verify_link}"
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[email],
+        )
+
+        # Attach HTML version
+        email_message.attach_alternative(
+            html_content,
+            "text/html",
+        )
+
+        # Send
+        email_message.send(fail_silently=False)
         return Response({"message": "Check your email for the verification link."}, status=status.HTTP_201_CREATED)
 
 class VerifyEmailView(APIView):
@@ -99,6 +120,9 @@ class LoginView(APIView):
         return Response({"error": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
 
 class CookieTokenRefreshView(APIView):
+    # An expired access cookie must not block a valid refresh cookie from being used.
+    authentication_classes = []
+    permission_classes=[AllowAny,]
     def post(self, request):
         refresh_token = request.COOKIES.get('refresh')
         if not refresh_token:
@@ -141,4 +165,3 @@ class CurrentUserView(APIView):
             "first_name": user.first_name,
             "last_name": user.last_name,
         })
-        

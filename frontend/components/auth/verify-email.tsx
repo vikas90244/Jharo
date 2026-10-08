@@ -32,7 +32,7 @@ export default function VerifyEmail({
             router.push("/login")
         }
     });
-  }, [uid, token]);
+  }, [uid, token, router, verifyMutation]);
 
   if (verifyMutation.isPending) {
     return (

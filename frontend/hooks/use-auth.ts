@@ -8,6 +8,7 @@ import { login, getCurrentUser, register, verifyEmail, refreshToken, logout
 
 import type { LoginPayload, RegisterPayload , VerifyEmailPayload} from "@/lib/feature/auth"
 import { useRouter } from "next/navigation"
+import { ApiError } from "@/lib/api"
 
 export const CURRENT_USER_QUERY_KEY = [
   "current-user",
@@ -32,7 +33,16 @@ export function useCurrentUser() {
   return useQuery({
     queryKey: CURRENT_USER_QUERY_KEY,
 
-    queryFn: getCurrentUser,
+    queryFn: async () => {
+      try {
+        return await getCurrentUser();
+      } catch (error) {
+        // api() has already attempted one refresh and retried the request.
+        // A remaining 401 means the session is no longer valid.
+        if (error instanceof ApiError && error.status === 401) return null;
+        throw error;
+      }
+    },
 
     retry: false,
     
@@ -66,10 +76,11 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: logout,
-    onSuccess: () => {
+    onSettled: () => {
       queryClient.setQueryData(CURRENT_USER_QUERY_KEY, null);
-      queryClient.removeQueries({ queryKey: CURRENT_USER_QUERY_KEY });
-      router.push("/");
+      queryClient.removeQueries({ queryKey: ["resources"] });
+      queryClient.removeQueries({ queryKey: ["resource-pages"] });
+      router.replace("/login");
     },
   });
 }

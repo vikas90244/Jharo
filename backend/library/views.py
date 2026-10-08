@@ -6,10 +6,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.http import FileResponse, Http404
 from rest_framework.response import Response
 from .models import Resource, Page
-from .splitter import split_resource
 from .serializers import PageSerializer, ResourceSerializer, ResourceUploadSerializer
-
-
+from .tasks import split_book
 
 
 class ResourceUploadView(APIView):
@@ -18,34 +16,29 @@ class ResourceUploadView(APIView):
     parser_classes = [MultiPartParser, FormParser]
     
     def post(self, request):
-        serializer = ResourceUploadSerializer(
-            data=request.data,
-            context={'request': request}
-        )
+        try:
+
+            serializer = ResourceUploadSerializer(
+                data=request.data,
+                context={'request': request}
+            )
+        except Exception as e:
+            print(f"exception is {e}")
         
         if serializer.is_valid():
             resource = serializer.save()
             
             # Trigger processing immediately after upload
-            try:
-                split_resource(resource.id, request)
-            except Exception as e:
-                # If processing fails, mark resource as failed
-                resource.processing_status = 'failed'
-                resource.save()
-                return Response(
-                    {'error': f'Processing failed: {str(e)}'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
+            split_book.delay(resource.id)
+           
             
-            # Refresh resource from DB to get updated status and cover
-            resource.refresh_from_db()
+            # # Refresh resource from DB to get updated status and cover
+            # resource.refresh_from_db()
             
             return Response(
-                ResourceSerializer(
-                    resource,
-                    context={'request': request},
-                ).data,
+              data={
+                  "message": "your pdf is being processed"
+              },
                 status=status.HTTP_201_CREATED
             )
         
@@ -91,12 +84,12 @@ class ResourceStreamView(APIView):
             raise Http404("resource not found")
 
 
-class PrepareResourceView(APIView):
-    permission_classes = [AllowAny]
+# class PrepareResourceView(APIView):
+#     permission_classes = [AllowAny]
     
-    def get(self, request, pk):
-        data = split_resource(pk, request)
-        return Response(data=data)
+#     def get(self, request, pk):
+#         data = split_resource(pk, request)
+#         return Response(data=data)
 
 
 class ResourceRangeView(APIView):

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/auth-provider";
-import { Settings } from "lucide-react";
+import { BookOpen, Settings } from "lucide-react";
 import { SettingsPanel } from "@/components/settings/settings-panel";
 
 interface AppHeaderProps {
@@ -20,14 +20,15 @@ export function AppHeader({ hideOnZoom = false, className = "" }: AppHeaderProps
     if (!hideOnZoom) return;
 
     // Listen for custom zoom events (you can trigger these from book reader components)
-    const handleZoomChange = (e: CustomEvent<{ zoomed: boolean }>) => {
-      setIsZoomed(e.detail.zoomed);
+    const handleZoomChange = (event: Event) => {
+      const zoomEvent = event as CustomEvent<{ zoomed: boolean }>;
+      setIsZoomed(zoomEvent.detail.zoomed);
     };
 
-    window.addEventListener("zoomchange" as any, handleZoomChange);
+    window.addEventListener("zoomchange", handleZoomChange);
 
     return () => {
-      window.removeEventListener("zoomchange" as any, handleZoomChange);
+      window.removeEventListener("zoomchange", handleZoomChange);
     };
   }, [hideOnZoom]);
 
@@ -39,11 +40,21 @@ export function AppHeader({ hideOnZoom = false, className = "" }: AppHeaderProps
       >
         <div className="app-header__content">
           <div className="app-header__logo">
-            <Link href="/library">jharo</Link>
+            <Link href="/library" aria-label="Jharo library home">
+              <BookOpen size={19} strokeWidth={2.1} />
+              <span>jharo</span>
+            </Link>
           </div>
 
           <nav className="app-header__nav">
-            <span className="app-header__user-email">{user?.email}</span>
+            {user?.email && (
+              <div className="app-header__account" title={user.email}>
+                <span className="app-header__avatar" aria-hidden="true">
+                  {user.email.charAt(0).toUpperCase()}
+                </span>
+                <span className="app-header__user-email">{user.email}</span>
+              </div>
+            )}
             <button
               onClick={() => setShowSettings(true)}
               className="app-header__settings-button"

@@ -21,6 +21,7 @@ import {
   ChevronRight,
   BookOpen,
   X,
+  RefreshCw,
 } from "lucide-react";
 import styles from "./library-content.module.scss";
 import { paginateBlocks } from "./utility";
@@ -45,7 +46,10 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
   const {
     data: content,
     isLoading,
+    isFetching,
+    isPlaceholderData,
     error,
+    refetch,
   } = useGetResourceRange({
     id: bookId,
     start: loadedPageRange.start,
@@ -102,43 +106,64 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
   }, [lastRenderedPageIndex]);
 
   useEffect(() => {
-    if (pendingBookPage === null) return;
-    const renderedIndex = readingPages.findIndex(
+    if (pendingBookPage === null || isPlaceholderData) return;
+    const matchingIndex = readingPages.findIndex(
       (page) => pendingBookPage >= page.startpage && pendingBookPage <= page.endpage,
     );
+    const previousIndex = readingPages.reduce(
+      (result, page, index) => page.endpage <= pendingBookPage ? index : result,
+      -1,
+    );
+    const nextIndex = readingPages.findIndex((page) => page.startpage > pendingBookPage);
+    const renderedIndex = matchingIndex >= 0
+      ? matchingIndex
+      : previousIndex >= 0 ? previousIndex : nextIndex;
     if (renderedIndex >= 0) {
       setCurrentRenderedPage(renderedIndex);
       setPendingBookPage(null);
     }
-  }, [pendingBookPage, readingPages]);
+  }, [pendingBookPage, readingPages, isPlaceholderData]);
 
   useEffect(() => {
     setCurrentRenderedPage(0);
-  }, [
-    bookId,
-    viewportSize.width,
-    viewportSize.height,
-  ]);
+  }, [bookId, viewportSize.width, viewportSize.height]);
+
+  useEffect(() => {
+    setLoadedPageRange({ start: 0, end: 15 });
+    setPendingBookPage(null);
+  }, [bookId]);
 
   const goToNextRenderedPage = useCallback(() => {
-    if (currentRenderedPage === lastRenderedPageIndex){
-       setLoadedPageRange((prev)=> {
-        return {start:prev.end + 1, end:Math.min(prev.end + 11, bookPageCount - 1)}
-    })
-    } else{
-      setCurrentRenderedPage((pageIndex) =>
-      Math.min(pageIndex + 1, lastRenderedPageIndex)
-    );
+    if (isFetching) return;
+    if (currentRenderedPage < lastRenderedPageIndex) {
+      setCurrentRenderedPage((pageIndex) => pageIndex + 1);
+      return;
     }
+    if (loadedPageRange.end >= bookPageCount - 1) return;
 
-    
-  }, [lastRenderedPageIndex, currentRenderedPage, bookPageCount]);
+    const start = loadedPageRange.end + 1;
+    setPendingBookPage(start);
+    setLoadedPageRange({
+      start,
+      end: Math.min(start + 10, bookPageCount - 1),
+    });
+  }, [isFetching, currentRenderedPage, lastRenderedPageIndex, loadedPageRange.end, bookPageCount]);
 
   const goToPreviousRenderedPage = useCallback(() => {
-    setCurrentRenderedPage((pageIndex) =>
-      Math.max(pageIndex - 1, 0)
-    );
-  }, []);
+    if (isFetching) return;
+    if (currentRenderedPage > 0) {
+      setCurrentRenderedPage((pageIndex) => pageIndex - 1);
+      return;
+    }
+    if (loadedPageRange.start === 0) return;
+
+    const end = loadedPageRange.start - 1;
+    setPendingBookPage(end);
+    setLoadedPageRange({
+      start: Math.max(0, end - 10),
+      end,
+    });
+  }, [isFetching, currentRenderedPage, loadedPageRange.start]);
 
   const goToBookPage = useCallback(
     (percentage: number) => {
@@ -151,7 +176,6 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
         Math.min(bookPageIndex, bookPageCount - 1)
       );
 
-      // Fetch a section around the selected book page.
       const sectionStart = Math.max(
         0,
         safeBookPageIndex - 5
@@ -167,7 +191,6 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
         end: Math.min(sectionEnd, bookPageCount - 1),
       });
 
-      // Backend PDF page_number values and reader controls are zero-based.
       setPendingBookPage(safeBookPageIndex);
     },
     [bookPageCount]
@@ -211,30 +234,37 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
 
   if (isLoading) {
     return (
-      <div className={styles.readerContainer}>
-        <div className={styles.readingArea}>
-          <PageSkeleton count={1} />
+      <main className={styles.statePage} role="status" aria-label="Loading book">
+        <div className={styles.stateContent}>
+          <div className={styles.stateBrand}>JHARO · READER</div>
+          <h1 className={styles.stateTitle}>Opening your book</h1>
+          <p className={styles.stateDescription}>Preparing the pages for your reading space.</p>
+          <div className={styles.loadingPreview}><PageSkeleton count={1} /></div>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (error) {
     return (
-      <div className={styles.errorContainer}>
-        <BookOpen className={styles.errorIcon} />
-
-        <p className={styles.errorText}>
-          Failed to load book
-        </p>
-
-        <button
-          className={styles.retryButton}
-          onClick={() => window.location.reload()}
-        >
-          Try Again
-        </button>
-      </div>
+      <main className={styles.statePage}>
+        <section className={styles.errorCard} role="alert">
+          <div className={styles.stateIcon}><BookOpen size={28} /></div>
+          <div className={styles.stateBrand}>JHARO · READER</div>
+          <h1 className={styles.stateTitle}>This book couldn’t be opened</h1>
+          <p className={styles.stateDescription}>
+            {error instanceof Error ? error.message : "There was a problem loading the pages. Please try again."}
+          </p>
+          <div className={styles.stateActions}>
+            <button className={styles.retryButton} onClick={() => void refetch()}>
+              <RefreshCw size={16} /> Try again
+            </button>
+            <button className={styles.backButton} onClick={() => router.push("/library")}>
+              Back to library
+            </button>
+          </div>
+        </section>
+      </main>
     );
   }
 
@@ -278,7 +308,7 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
         <button
           className={`${styles.navOverlay} ${styles.navOverlayLeft}`}
           onClick={goToPreviousRenderedPage}
-          disabled={currentRenderedPage === 0}
+          disabled={isFetching || (currentRenderedPage === 0 && loadedPageRange.start === 0)}
           aria-label="Previous page"
         >
           <ChevronLeft size={28} strokeWidth={1.5} />
@@ -288,8 +318,8 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
           className={`${styles.navOverlay} ${styles.navOverlayRight}`}
           onClick={goToNextRenderedPage}
           disabled={
-            currentRenderedPage >= lastRenderedPageIndex &&
-            loadedPageRange.end >= bookPageCount - 1
+            isFetching || (currentRenderedPage >= lastRenderedPageIndex &&
+            loadedPageRange.end >= bookPageCount - 1)
           }
           aria-label="Next page"
         >

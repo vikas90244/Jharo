@@ -75,21 +75,10 @@ export async function uploadResource(payload: UploadResourcePayload) {
   const formData = new FormData();
   formData.append('title', payload.title);
   formData.append('object_path', payload.object_path);
-
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/resources/upload/`, {
-    method: 'POST',
-    credentials: 'include',
+  return api<Resource>("/resources/upload/", {
+    method: "POST",
     body: formData,
-    // Don't set Content-Type header - browser will set it with boundary for FormData
   });
-
-  const data = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw new Error(data?.error || data?.detail || 'Upload failed');
-  }
-
-  return data as Resource;
 }
 
 /**

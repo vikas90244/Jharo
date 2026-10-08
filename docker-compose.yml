@@ -1,0 +1,42 @@
+services:
+  frontend:
+    build: ./frontend
+    container_name: jharo_frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env
+    
+  backend:
+    build: ./backend
+    container_name: jharo_backend
+    ports:
+      - "8000:8080"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - D:\jharo\backend\media:/app/media
+    depends_on:
+      - db
+      - redis
+  celery:
+    build: ./backend
+    command: celery -A config worker --loglevel=info
+    env_file:
+      - ./backend/.env
+    volumes:
+      - D:\jharo\backend\media:/app/media
+    depends_on:
+      - db
+      - redis
+  db:
+    image: postgres:18
+    env_file:
+      - ./backend/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql
+  redis:
+      image: redis:7-alpine
+  
+volumes:
+  postgres_data:

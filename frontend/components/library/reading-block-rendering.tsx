@@ -20,6 +20,7 @@ const ImageBlockRender = memo(({ block }: { block: ImageBlock }) => {
         alt=""
         width={width}
         height={height}
+        unoptimized
         className={styles.imageBlock}
         priority={false}
         quality={90}

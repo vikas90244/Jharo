@@ -1,9 +1,10 @@
 "use client";
 
 import { createContext, useContext, useEffect, ReactNode, useRef } from "react";
-import { useCurrentUser, useRefreshToken } from "@/hooks/use-auth";
+import { CURRENT_USER_QUERY_KEY, useCurrentUser, useRefreshToken } from "@/hooks/use-auth";
 import type { User } from "@/lib/feature/auth";
 import { ApiError } from "@/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface AuthContextType {
   user: User | null;
@@ -14,28 +15,13 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { data: user, isLoading, error, refetch } = useCurrentUser();
+  const { data: user, isLoading, error } = useCurrentUser();
   const { mutate: refreshToken } = useRefreshToken();
+  const queryClient = useQueryClient();
   const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const refreshAttemptedRef = useRef(false);
 
   useEffect(() => {
     if (isLoading) {
-      return;
-    }
-
-    if (
-      !user &&
-      error instanceof ApiError &&
-      error.status === 401 &&
-      !refreshAttemptedRef.current
-    ) {
-      refreshAttemptedRef.current = true;
-      refreshToken(undefined, {
-        onSuccess: () => {
-          refetch();
-        },
-      });
       return;
     }
 
@@ -47,11 +33,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    refreshAttemptedRef.current = false;
     refreshIntervalRef.current = setInterval(() => {
       refreshToken(undefined, {
-        onSuccess: () => {
-          refetch();
+        onError: (refreshError) => {
+          if (refreshError instanceof ApiError && refreshError.status === 401) {
+            queryClient.setQueryData(CURRENT_USER_QUERY_KEY, null);
+            queryClient.removeQueries({ queryKey: ["resources"] });
+            queryClient.removeQueries({ queryKey: ["resource-pages"] });
+          }
         },
       });
     }, 4 * 60 * 1000); // 4 minutes
@@ -61,11 +50,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearInterval(refreshIntervalRef.current);
       }
     };
-  }, [error, isLoading, refreshToken, refetch, user]);
+  }, [error, isLoading, queryClient, refreshToken, user]);
+
+  const hasUnresolvedAuthError = !!error && user === undefined;
 
   const value: AuthContextType = {
     user: user || null,
-    isLoading,
+    isLoading: isLoading || hasUnresolvedAuthError,
     isAuthenticated: !!user,
   };
 
