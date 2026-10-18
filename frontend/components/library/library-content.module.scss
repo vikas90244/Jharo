@@ -4,12 +4,13 @@
 
 .readerContainer {
   height: 100dvh;
+  min-height: 100svh;
   width: 100%;
 
   display: flex;
   flex-direction: column;
 
-  background: #f4f4f1;
+  background: var(--reader-background);
 
   overflow: hidden;
 }
@@ -35,8 +36,8 @@
 
   padding: 0;
 
-  color: #fff;
-  background: #111;
+  color: var(--text-inverse);
+  background: var(--ink);
 
   border: 0;
   border-radius: 0.35rem;
@@ -48,7 +49,7 @@
     transform 0.2s ease;
 
   &:hover {
-    background: #333;
+    background: var(--text-primary);
   }
 
   &:active {
@@ -56,7 +57,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid #111;
+    outline: 2px solid var(--accent-wood);
     outline-offset: 3px;
   }
 }
@@ -72,10 +73,10 @@
   display: grid;
   place-items: center;
   padding: clamp(20px, 5vw, 64px);
-  color: #332c25;
+  color: var(--text-primary);
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(231, 220, 202, 0.55), transparent 58%),
-    #f7f5f0;
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--accent-wood) 12%, transparent), transparent 58%),
+    var(--paper);
 }
 
 .stateContent {
@@ -85,7 +86,7 @@
 
 .stateBrand {
   margin-bottom: 10px;
-  color: #8c6b4f;
+  color: var(--accent-wood);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -93,7 +94,7 @@
 
 .stateTitle {
   margin: 0;
-  color: #332c25;
+  color: var(--text-primary);
   font-family: Georgia, 'Palatino Linotype', serif;
   font-size: clamp(1.6rem, 4vw, 2.15rem);
   font-weight: 500;
@@ -103,7 +104,7 @@
 .stateDescription {
   max-width: 480px;
   margin: 10px auto 24px;
-  color: #786e64;
+  color: var(--text-secondary);
   font-size: 0.95rem;
   line-height: 1.6;
 }
@@ -114,10 +115,10 @@
   min-height: 230px;
   margin: 0 auto;
   overflow: hidden;
-  background: #fffefa;
-  border: 1px solid rgba(130, 105, 77, 0.13);
+  background: var(--paper-light);
+  border: 1px solid var(--border-subtle);
   border-radius: 14px;
-  box-shadow: 0 14px 38px rgba(54, 43, 31, 0.07);
+  box-shadow: var(--shadow-md);
 
 }
 
@@ -127,10 +128,10 @@
   flex-direction: column;
   align-items: center;
   padding: clamp(28px, 6vw, 48px);
-  background: rgba(255, 254, 250, 0.92);
-  border: 1px solid #e8e1d7;
+  background: color-mix(in srgb, var(--paper-light) 92%, transparent);
+  border: 1px solid var(--border-subtle);
   border-radius: 18px;
-  box-shadow: 0 18px 52px rgba(54, 43, 31, 0.09);
+  box-shadow: var(--shadow-lg);
   text-align: center;
 }
 
@@ -140,8 +141,8 @@
   display: grid;
   place-items: center;
   margin-bottom: 22px;
-  color: #805f43;
-  background: #f3ebdf;
+  color: var(--accent-wood);
+  background: var(--paper-dark);
   border-radius: 16px;
 }
 
@@ -185,25 +186,25 @@
   gap: 8px;
   min-height: 42px;
   padding: 0 16px;
-  color: #fff;
-  background: #79583e;
-  border: 1px solid #79583e;
+  color: var(--text-inverse);
+  background: var(--accent-wood);
+  border: 1px solid var(--accent-wood);
   border-radius: 10px;
   cursor: pointer;
   font-size: 0.88rem;
   font-weight: 600;
   transition: background 160ms ease, transform 160ms ease;
 
-  &:hover { background: #63462f; transform: translateY(-1px); }
-  &:focus-visible { outline: 3px solid rgba(140, 107, 79, 0.28); outline-offset: 2px; }
+  &:hover { background: var(--accent-wood-hover); transform: translateY(-1px); }
+  &:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent-wood) 30%, transparent); outline-offset: 2px; }
 }
 
 .backButton {
-  color: #594a3d;
-  background: #fffefa;
-  border-color: #ded5c9;
+  color: var(--text-primary);
+  background: var(--paper-light);
+  border-color: var(--border);
 
-  &:hover { background: #f7f2e9; }
+  &:hover { background: var(--interactive-hover); }
 }
 
 
@@ -222,11 +223,11 @@
 
   padding: 0 4rem;
 
-  color: #2b2622;
-  background: #f4ead5;
+  color: var(--reader-text);
+  background: var(--reader-page);
 
   border-bottom: 1px solid
-    rgba(140, 107, 79, 0.16);
+    var(--border-subtle);
 
   font-family:
     Georgia,
@@ -283,6 +284,7 @@
   justify-content: center;
 
   overflow: hidden;
+  touch-action: pan-y;
 }
 
 
@@ -301,11 +303,11 @@
   margin: 0 auto;
   padding: 0;
 
-  background: #f4ead5;
+  background: var(--reader-page);
 
   box-shadow:
     0 1px 8px
-    rgba(44, 44, 38, 0.06);
+    var(--shadow-sm);
 
   border-radius: 3px;
 
@@ -370,11 +372,11 @@
   background: transparent;
 
   border: 1px solid
-    rgba(43, 38, 34, 0.28);
+    color-mix(in srgb, var(--reader-text) 28%, transparent);
 
   border-radius: 50%;
 
-  color: rgba(43, 38, 34, 0.62);
+  color: color-mix(in srgb, var(--reader-text) 72%, transparent);
 
   cursor: pointer;
 
@@ -392,13 +394,13 @@
   &:hover:not(:disabled) {
     opacity: 1;
 
-    color: #2b2622;
+    color: var(--reader-text);
 
     background:
-      rgba(255, 255, 255, 0.18);
+      color-mix(in srgb, var(--paper-light) 22%, transparent);
 
     border-color:
-      rgba(43, 38, 34, 0.5);
+      color-mix(in srgb, var(--reader-text) 50%, transparent);
 
     transform:
       translateY(-50%)
@@ -417,7 +419,7 @@
     opacity: 0.2;
 
     border-color:
-      rgba(43, 38, 34, 0.16);
+      color-mix(in srgb, var(--reader-text) 16%, transparent);
   }
 
   &:focus-visible {
@@ -429,8 +431,8 @@
   }
 
   @media (max-width: 768px) {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
 
     opacity: 0.72;
 
@@ -468,4 +470,45 @@
   @media (max-width: 768px) {
     right: 8px;
   }
+}
+
+@media (max-width: 600px) {
+  .navOverlay {
+    top: auto;
+    bottom: calc(3.8rem + env(safe-area-inset-bottom, 0px));
+    color: var(--reader-text);
+    background: var(--reader-control);
+    border-color: var(--border);
+    box-shadow: var(--shadow-sm);
+    transform: none;
+
+    &:hover:not(:disabled) { transform: translateY(-1px); }
+    &:active:not(:disabled) { transform: scale(0.96); }
+  }
+
+  .navOverlayLeft { left: 10px; }
+  .navOverlayRight { right: 10px; }
+}
+
+@media (max-width: 600px) {
+  .bookTopBar {
+    flex-basis: calc(48px + env(safe-area-inset-top, 0px));
+    height: calc(48px + env(safe-area-inset-top, 0px));
+    box-sizing: border-box;
+    padding: env(safe-area-inset-top, 0px) 58px 0;
+    font-size: 0.94rem;
+  }
+
+  .closeButton {
+    top: calc(8px + env(safe-area-inset-top, 0px));
+    left: 10px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .pageWrapper { animation-duration: 180ms; }
+}
+
+@media (max-width: 380px) {
+  .bookTopBar { padding-right: 48px; padding-left: 48px; font-size: 0.86rem; }
 }

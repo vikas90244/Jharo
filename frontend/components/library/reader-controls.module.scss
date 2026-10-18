@@ -10,11 +10,18 @@
   height: 1.45rem;
   padding: 0.15rem 0.25rem;
   transform: translateX(-50%);
-  background: #f4ead5;
+  background: var(--reader-control);
   border-radius: 0.25rem;
 
   @media (max-width: 768px) {
-    width: min(240px, 58vw);
+    box-sizing: border-box;
+    width: min(360px, calc(100% - 72px));
+    height: 2.7rem;
+    bottom: calc(0.4rem + env(safe-area-inset-bottom, 0px));
+    padding: 0.65rem 0.7rem;
+    background: var(--reader-control);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-subtle);
   }
 }
 
@@ -30,23 +37,28 @@
   gap: 0.2rem;
   font-family: Georgia, serif;
   font-size: 0.58rem;
-  color: rgba(43, 38, 34, 0.58);
+  color: var(--text-secondary);
   flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    top: -0.85rem;
+    font-size: 0.68rem;
+  }
 }
 
 .currentPage {
-  color: #2b2622;
+  color: var(--reader-text);
   font-weight: 500;
 }
 
 .separator {
-  color: rgba(43, 38, 34, 0.35);
+  color: var(--text-tertiary);
   font-weight: 300;
 }
 
 .totalPages {
   font-weight: 400;
-  color: rgba(43, 38, 34, 0.58);
+  color: var(--text-secondary);
 }
 
 // Progress Slider
@@ -67,7 +79,7 @@
   top: 0;
   left: 0;
   height: 100%;
-  background: #8c6b4f;
+  background: var(--accent-wood);
   border-radius: 3px;
   pointer-events: none;
   transition: width 0.2s ease;
@@ -80,7 +92,7 @@
   margin: 0;
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(43, 38, 34, 0.22);
+  background: color-mix(in srgb, var(--reader-text) 22%, transparent);
   border-radius: 3px;
   cursor: pointer;
   z-index: 2;
@@ -91,14 +103,14 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #f4ead5;
-    border: 1px solid #8c6b4f;
+    background: var(--reader-control);
+    border: 1px solid var(--accent-wood);
     cursor: grab;
     transition: all 0.15s ease;
 
     &:hover {
       transform: scale(1.2);
-      background: #fff3d8;
+      background: var(--paper-light);
     }
 
     &:active {
@@ -112,14 +124,14 @@
     height: 14px;
     border: none;
     border-radius: 50%;
-    background: #f4ead5;
-    border: 1px solid #8c6b4f;
+    background: var(--reader-control);
+    border: 1px solid var(--accent-wood);
     cursor: grab;
     transition: all 0.15s ease;
 
     &:hover {
       transform: scale(1.2);
-      background: #fff3d8;
+      background: var(--paper-light);
     }
 
     &:active {
@@ -130,6 +142,13 @@
 
   &:focus {
     outline: none;
+  }
+
+  @media (max-width: 768px) {
+    height: 22px;
+
+    &::-webkit-slider-thumb { width: 16px; height: 16px; }
+    &::-moz-range-thumb { width: 16px; height: 16px; }
   }
 }
 

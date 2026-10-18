@@ -25,6 +25,9 @@ import {
 } from "lucide-react";
 import styles from "./library-content.module.scss";
 import { paginateBlocks } from "./utility";
+import { localDateString, recordPageRead } from "@/lib/feature/activity";
+
+const PAGE_READ_THRESHOLD_MS = 90 * 1000;
 
 function ResourceContent({ bookId = 1 }: { bookId?: number }) {
   const router = useRouter();
@@ -42,6 +45,7 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
     start: 0,
     end: 15,
   });
+  const recordedPageVisit = useRef<string | null>(null);
 
   const {
     data: content,
@@ -98,6 +102,41 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
   const renderedPageCount = readingPages.length;
 
   const lastRenderedPageIndex = Math.max(0, renderedPageCount - 1);
+  const visiblePage = readingPages[currentRenderedPage];
+
+  useEffect(() => {
+    if (!visiblePage || isLoading || isPlaceholderData) return;
+
+    const visitKey = `${bookId}:${visiblePage.endpage}`;
+    if (recordedPageVisit.current === visitKey) return;
+
+    let elapsedMs = 0;
+    let activeSince = document.hidden ? null : Date.now();
+    const timer = window.setInterval(() => {
+      if (document.hidden) return;
+      const elapsed = elapsedMs + (activeSince ? Date.now() - activeSince : 0);
+      if (elapsed < PAGE_READ_THRESHOLD_MS) return;
+
+      recordedPageVisit.current = visitKey;
+      window.clearInterval(timer);
+      void recordPageRead(bookId, visiblePage.endpage + 1, localDateString()).catch(() => undefined);
+    }, 1000);
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && activeSince) {
+        elapsedMs += Date.now() - activeSince;
+        activeSince = null;
+      } else if (!document.hidden && !activeSince) {
+        activeSince = Date.now();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [bookId, visiblePage?.endpage, isLoading, isPlaceholderData]);
 
   useEffect(() => {
     setCurrentRenderedPage((pageIndex) =>
@@ -268,7 +307,6 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
     );
   }
 
-  const visiblePage = readingPages[currentRenderedPage];
   const visibleBlocks = visiblePage?.blocks || [];
 
   return (

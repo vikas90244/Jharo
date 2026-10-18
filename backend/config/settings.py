@@ -62,10 +62,12 @@ MIDDLEWARE = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-FRONTEND_URL=os.getenv("FRONTEND_URL")
-CORS_ALLOWED_ORIGINS = [
-   FRONTEND_URL,
-]
+FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:3000")
+CORS_ALLOWED_ORIGINS = config(
+    "CORS_ALLOWED_ORIGINS",
+    default=f"{FRONTEND_URL},http://127.0.0.1:3000",
+    cast=lambda value: [origin.strip() for origin in value.split(",") if origin.strip()],
+)
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
@@ -90,23 +92,23 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 # if DEBUG:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': BASE_DIR / 'db.sqlite3',
-#         }
-#     }
-# else:
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT"),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# else:
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": os.getenv("POSTGRES_DB"),
+#         "USER": os.getenv("POSTGRES_USER"),
+#         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+#         "HOST": os.getenv("DB_HOST"),
+#         "PORT": os.getenv("DB_PORT"),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -141,7 +143,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "/static/"
+SERVE_STATIC_FILES = config("SERVE_STATIC_FILES", default=DEBUG, cast=bool)
+SERVE_MEDIA_FILES = config("SERVE_MEDIA_FILES", default=DEBUG, cast=bool)
 
 
 REST_FRAMEWORK = {
@@ -192,3 +196,4 @@ BASE_URL= os.getenv("BASE_URL")
 
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+NINJA_DICTIONARY_API_KEY=os.getenv("NINJA_DICTIONARY_API_KEY")

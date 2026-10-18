@@ -31,8 +31,8 @@
   }
   
   @media (max-width: 768px) {
-    padding: 0.5rem 0.75rem 0;
-    font-size: 16px;
+    padding: 0.75rem 1rem 1rem;
+    font-size: 17px;
   }
 }
 
@@ -50,7 +50,7 @@
   max-height: 72dvh;
   height: auto;
   object-fit: contain;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
 
   @media (max-width: 768px) {
     max-height: 62dvh;
@@ -61,7 +61,7 @@
 .textBlock {
   display: block;
   margin: 0 0 1.5em 0; // Good paragraph spacing
-  color: #2b2622;
+  color: var(--reader-text);
   user-select: text;
   line-height: 1.6; // More comfortable for wide text
   text-align: justify;
@@ -87,8 +87,8 @@
   
   // Text selection
   &::selection {
-    background: rgba(140, 107, 79, 0.3);
-    color: #2b2622;
+    background: color-mix(in srgb, var(--accent-wood) 30%, transparent);
+    color: var(--reader-text);
   }
   
   &:first-child {
@@ -115,12 +115,12 @@
   padding: 2px 1px;
   
   &:hover {
-    background: rgba(140, 107, 79, 0.15);
-    color: #1a1410;
+    background: color-mix(in srgb, var(--accent-wood) 18%, transparent);
+    color: var(--reader-text);
   }
   
   &:active {
-    background: rgba(140, 107, 79, 0.25);
+    background: color-mix(in srgb, var(--accent-wood) 28%, transparent);
   }
 }
 
@@ -131,8 +131,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(43, 38, 34, 0.4); // Warm dark overlay
-  backdrop-filter: blur(3px);
+  background: var(--popup-backdrop);
+  backdrop-filter: blur(0.75px);
   z-index: 999;
   animation: fadeIn 0.15s ease;
 }
@@ -140,12 +140,18 @@
 // Word Popup - Cream aesthetic with smart positioning
 .wordPopup {
   position: fixed;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   min-width: 320px;
-  max-width: 400px;
-  background: #f4ead5; // Cream background (same as pages)
-  border: 2px solid #d4c4a8; // Warm border
-  border-radius: 8px;
-  box-shadow: 0 8px 32px rgba(43, 38, 34, 0.25);
+  max-width: 420px;
+  max-height: calc(100dvh - 24px);
+  overflow: hidden;
+  background: var(--popup-background);
+  color: var(--popup-text);
+  border: 1px solid var(--popup-border);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2), var(--shadow-lg);
   z-index: 1000;
   animation: popupSlideIn 0.2s ease-out;
 }
@@ -175,15 +181,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
-  border-bottom: 2px solid #d4c4a8; // Warm divider
-  background: #ebe3d0; // Slightly darker cream for header
+  flex: 0 0 auto;
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid var(--popup-border);
+  background: var(--popup-header);
+  gap: 16px;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
 }
 
 .popupWord {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #2b2622; // Dark brown text
+  font-size: 1.3rem;
+  font-weight: 650;
+  color: var(--popup-text);
   margin: 0;
   font-family: Georgia, serif;
 }
@@ -191,32 +200,47 @@
 .popupClose {
   background: transparent;
   border: none;
-  font-size: 1.75rem;
   line-height: 1;
-  color: #8c6b4f; // Warm brown
+  color: var(--popup-muted);
+  background: var(--interactive-bg);
+  border: 1px solid var(--popup-border);
   cursor: pointer;
   padding: 0;
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 10px;
   transition: all 0.15s ease;
   
   &:hover {
-    background: rgba(140, 107, 79, 0.2); // Light brown hover
-    color: #2b2622;
+    background: var(--interactive-hover);
+    color: var(--popup-text);
+    border-color: var(--border-hover);
   }
   
   &:active {
-    background: rgba(140, 107, 79, 0.3);
+    background: var(--interactive-active);
   }
 }
 
 .popupContent {
+  min-height: 0;
+  max-height: min(58dvh, 420px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent-wood) 48%, transparent) transparent;
   padding: 1.25rem;
-  background: #f4ead5; // Cream content area
+  background: var(--popup-background);
+  line-height: 1.65;
+
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--accent-wood) 45%, transparent); border-radius: 999px; }
+  &::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--accent-wood) 70%, transparent); }
 }
 
 .popupDefinition,
@@ -224,12 +248,12 @@
   margin: 0 0 1rem 0;
   font-size: 0.9375rem;
   line-height: 1.6;
-  color: #3d3530; // Warm dark text
+  color: var(--popup-text);
   
   strong {
     display: block;
     margin-bottom: 0.5rem;
-    color: #2b2622; // Dark brown
+    color: var(--popup-text);
     font-size: 0.875rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -241,6 +265,25 @@
   }
 }
 
+.popupPhonetic { margin: 0 0 0.75rem; color: var(--popup-muted); font-family: Georgia, serif; font-size: 0.92rem; }
+.popupSource { margin: 0 0 0.75rem; color: var(--popup-muted); font-size: 0.78rem; }
+.popupSource a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.popupMessage { margin: 0; color: var(--popup-muted); font-size: 0.9rem; line-height: 1.5; }
+.popupLearnedStatus {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 1rem 0 0;
+  padding-top: 0.75rem;
+  color: var(--popup-text);
+  border-top: 1px solid var(--popup-border);
+  font-size: 0.76rem;
+  font-weight: 600;
+
+  span { color: var(--popup-muted); font-weight: 400; }
+}
+
 // Remove old absolute positioned span styles
 .textSpan {
   // Not used anymore
@@ -249,34 +292,80 @@
 // Dark theme adjustments
 html[data-theme='dark'] {
   .readerContainer {
-    background: #3a3530; // Warm dark sepia
+    background: var(--reader-background);
   }
   
   .pageContainer {
-    background: #2a2520; // Dark cream pages
+    background: var(--reader-page);
   }
 
-  .textSpan {
-    color: #d4c4a8;
-    
-    &::selection {
-      background: rgba(184, 144, 111, 0.3);
-      color: #d4c4a8;
-    }
+  .textBlock {
+    color: var(--reader-text);
+    &::selection { background: color-mix(in srgb, var(--accent-wood) 35%, transparent); color: var(--reader-text); }
   }
 }
 
 // Light mode explicit settings
 html[data-theme='light'] {
   .readerContainer {
-    background: #e8dcc4;
+    background: var(--reader-background);
   }
   
   .pageContainer {
-    background: #f4ead5;
+    background: var(--reader-page);
   }
   
-  .textSpan {
-    color: #2b2622;
+  .textBlock {
+    color: var(--reader-text);
   }
+}
+
+@media (max-width: 600px) {
+  .pageContent {
+    box-sizing: border-box;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0.9rem 1.1rem 4rem;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--reader-text) 30%, transparent) transparent;
+
+    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--reader-text) 30%, transparent); border-radius: 999px; }
+  }
+
+  .textBlock {
+    margin-bottom: 1.35em;
+    font-family: Charter, 'Bitstream Charter', Georgia, serif !important;
+    font-size: 1rem;
+    letter-spacing: 0;
+    line-height: 1.65;
+    text-align: left;
+    word-spacing: 0;
+  }
+
+  .chapterHeading {
+    font-size: 1.18em !important;
+    line-height: 1.4;
+  }
+
+  .wordPopup {
+    width: calc(100vw - 40px);
+    min-width: 0;
+    max-width: 300px;
+    max-height: calc(100dvh - 32px);
+    box-sizing: border-box;
+  }
+
+  .popupWord { font-size: 1.1rem; }
+  .popupHeader { padding: 0.7rem 0.8rem; }
+  .popupContent { max-height: min(55dvh, 360px); padding: 0.8rem; }
+  .popupDefinition,
+  .popupExample { margin-bottom: 0.7rem; font-size: 0.875rem; line-height: 1.45; }
+  .popupLearnedStatus { margin-top: 0.7rem; padding-top: 0.6rem; }
+}
+
+@media (max-width: 380px) {
+  .pageContent { padding-right: 0.9rem; padding-left: 0.9rem; }
+  .textBlock { font-size: 0.97rem; line-height: 1.6; }
 }

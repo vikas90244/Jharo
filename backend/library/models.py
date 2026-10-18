@@ -31,3 +31,49 @@ class Page(models.Model):
     width= models.FloatField()
     height= models.FloatField()
     data= models.JSONField()
+
+
+class WordMeaning(models.Model):
+    word = models.CharField(max_length=120, unique=True)
+    definition = models.TextField()
+    part_of_speech = models.CharField(max_length=80, blank=True)
+    phonetic = models.CharField(max_length=120, blank=True)
+    example = models.TextField(blank=True)
+    source_name = models.CharField(max_length=100, blank=True)
+    source_url = models.URLField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.word
+
+
+class DailyLearningActivity(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="learning_activity")
+    date = models.DateField(db_index=True)
+    words_learned = models.PositiveIntegerField(default=0)
+    pages_read = models.PositiveIntegerField(default=0)
+    learned_words = models.JSONField(default=list)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("user", "date"), name="daily_activity_user_date_uniq"),
+        ]
+        ordering = ("-date",)
+
+
+class PageRead(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="pages_read")
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="reading_records")
+    page_number = models.PositiveIntegerField()
+    date = models.DateField(db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=("user", "resource", "page_number", "date"),
+                name="readpage_user_day_uniq",
+            ),
+        ]
+        indexes = [models.Index(fields=("user", "date"), name="page_read_user_date_idx")]
+        ordering = ("resource__title", "page_number")

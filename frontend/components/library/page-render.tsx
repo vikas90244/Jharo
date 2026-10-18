@@ -2,6 +2,9 @@ import React, { memo, useMemo, useState } from 'react';
 import styles from './page-render.module.scss';
 import { Block } from '@/lib/feature/library';
 import { ReadingBlockRender } from './reading-block-rendering';
+import { recordLearnedWord } from '@/lib/feature/activity';
+import type { WordMeaningResult } from '@/lib/feature/activity';
+import { X } from 'lucide-react';
 
 interface PageRenderProps {
   blocks: ReadingBlock[];
@@ -25,13 +28,16 @@ export interface ReadingPageType {
 interface WordPopupProps {
   word: string;
   position: { x: number; y: number };
+  meaning: WordMeaningResult | null;
+  isLoading: boolean;
+  error: string | null;
   onClose: () => void;
 }
 
 // WORD POPUP COMPONENT
 // Shows definition when user clicks a word
 
-const WordPopup = memo(({ word, position, onClose }: WordPopupProps) => {
+const WordPopup = memo(({ word, position, meaning, isLoading, error, onClose }: WordPopupProps) => {
   // Track where popup should appear (might adjust based on screen space)
   const [popupPosition, setPopupPosition] = useState({ 
     x: position.x, 
@@ -44,49 +50,35 @@ const WordPopup = memo(({ word, position, onClose }: WordPopupProps) => {
   // Reference to the popup element so we can measure it
   const popupRef = React.useRef<HTMLDivElement>(null);
 
-  // After popup renders, calculate best position to keep it on screen
+  // Reposition after the definition loads or the popup size changes.
   React.useEffect(() => {
-    if (!popupRef.current) return;
-
     const popup = popupRef.current;
-    const popupHeight = popup.offsetHeight;
-    const popupWidth = popup.offsetWidth;
-    const viewportHeight = window.innerHeight;
-    const viewportWidth = window.innerWidth;
+    if (!popup) return;
 
-    let x = position.x;
-    let y = position.y;
-    let newPlacement: 'bottom' | 'top' = 'bottom';
+    const updatePosition = () => {
+      const popupHeight = popup.offsetHeight;
+      const popupWidth = popup.offsetWidth;
+      const edgePadding = 12;
+      const spaceBelow = window.innerHeight - position.y;
+      const spaceAbove = position.y;
+      const showAbove = spaceBelow < popupHeight + 20 && spaceAbove > spaceBelow;
+      const x = Math.min(Math.max(position.x, edgePadding), window.innerWidth - popupWidth - edgePadding);
+      const desiredY = showAbove ? position.y - popupHeight - 10 : position.y + 5;
+      const y = Math.min(Math.max(desiredY, edgePadding), window.innerHeight - popupHeight - edgePadding);
 
-    // Calculate space above and below the word
-    const spaceBelow = viewportHeight - position.y;
-    const spaceAbove = position.y;
+      setPopupPosition((current) => current.x === x && current.y === y ? current : { x, y });
+      setPlacement(showAbove ? 'top' : 'bottom');
+    };
 
-    // Decide: show popup above or below the word?
-    if (spaceBelow < popupHeight + 20 && spaceAbove > spaceBelow) {
-      // Not enough space below, show ABOVE the word
-      y = position.y - popupHeight - 10;
-      newPlacement = 'top';
-    } else {
-      // Show BELOW the word (default)
-      y = position.y + 5;
-      newPlacement = 'bottom';
-    }
-
-    // Make sure popup doesn't go off the right edge
-    if (x + popupWidth > viewportWidth - 20) {
-      x = viewportWidth - popupWidth - 20;
-    }
-    
-    // Make sure popup doesn't go off the left edge
-    if (x < 20) {
-      x = 20;
-    }
-
-    // Update popup position and placement
-    setPopupPosition({ x, y });
-    setPlacement(newPlacement);
-  }, [position.x, position.y]);
+    updatePosition();
+    const observer = new ResizeObserver(updatePosition);
+    observer.observe(popup);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [position.x, position.y, meaning, isLoading, error]);
 
   return (
     <>
@@ -105,17 +97,33 @@ const WordPopup = memo(({ word, position, onClose }: WordPopupProps) => {
         {/* Header with word and close button */}
         <div className={styles.popupHeader}>
           <h3 className={styles.popupWord}>{word}</h3>
-          <button className={styles.popupClose} onClick={onClose}>×</button>
+          <button className={styles.popupClose} onClick={onClose} aria-label="Close meaning" title="Close"><X size={18} strokeWidth={2} /></button>
         </div>
         
-        {/* Content area (definition and example) */}
         <div className={styles.popupContent}>
-          <p className={styles.popupDefinition}>
-            <strong>Definition:</strong> This will show the meaning of `{word}`.
-          </p>
-          <p className={styles.popupExample}>
-            <strong>Example:</strong> Sample sentence using `{word}` will appear here.
-          </p>
+          {isLoading && <p className={styles.popupMessage}>Finding the meaning…</p>}
+          {error && <p className={styles.popupMessage} role="alert">{error}</p>}
+          {meaning && (
+            <>
+              {meaning.phonetic && <p className={styles.popupPhonetic}>{meaning.phonetic}</p>}
+              <p className={styles.popupDefinition}>
+                <strong>{meaning.part_of_speech || 'Meaning'}</strong>
+                {meaning.definition}
+              </p>
+              {meaning.example && <p className={styles.popupExample}><strong>Example</strong>{meaning.example}</p>}
+              {meaning.source_name && (
+                <p className={styles.popupSource}>
+                  Source: {meaning.source_url
+                    ? <a href={meaning.source_url} target="_blank" rel="noreferrer">{meaning.source_name}</a>
+                    : meaning.source_name}
+                </p>
+              )}
+              <p className={styles.popupLearnedStatus}>
+                {meaning.newly_learned ? 'New word learned' : 'Already learned today'}
+                <span>{meaning.words_learned} learned today</span>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </>
@@ -129,16 +137,30 @@ WordPopup.displayName = 'WordPopup';
 // Renders one page with text blocks and images
 
 function PageRender({ blocks, viewportWidth }: PageRenderProps) {
-  // Track which word is currently selected (for showing popup)
+  const requestId = React.useRef(0);
   const [selectedWord, setSelectedWord] = useState<{
+    id: number;
     word: string;
     x: number;
     y: number;
+    meaning: WordMeaningResult | null;
+    isLoading: boolean;
+    error: string | null;
   } | null>(null);
 
-  // When user clicks a word, save it to show popup
   const handleWordClick = (word: string, x: number, y: number) => {
-    setSelectedWord({ word, x, y });
+    const id = requestId.current + 1;
+    requestId.current = id;
+    setSelectedWord({ id, word, x, y, meaning: null, isLoading: true, error: null });
+
+    void recordLearnedWord(word).then(
+      (meaning) => setSelectedWord((current) => current?.id === id
+        ? { ...current, meaning, isLoading: false }
+        : current),
+      (error: unknown) => setSelectedWord((current) => current?.id === id
+        ? { ...current, isLoading: false, error: error instanceof Error ? error.message : 'Could not find this word.' }
+        : current),
+    );
   };
 
   // Close the popup
@@ -174,6 +196,9 @@ function PageRender({ blocks, viewportWidth }: PageRenderProps) {
         <WordPopup
           word={selectedWord.word}
           position={{ x: selectedWord.x, y: selectedWord.y }}
+          meaning={selectedWord.meaning}
+          isLoading={selectedWord.isLoading}
+          error={selectedWord.error}
           onClose={handleClosePopup}
         />
       )}
@@ -182,3 +207,4 @@ function PageRender({ blocks, viewportWidth }: PageRenderProps) {
 }
 
 export default memo(PageRender);
+

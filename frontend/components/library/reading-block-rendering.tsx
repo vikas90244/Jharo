@@ -4,6 +4,7 @@ import { ReadingBlock
  } from "./page-render";
 import styles from './page-render.module.scss';
 import type {  ImageBlock, TextBlock } from '@/lib/feature/library';
+import { getTextFontSize } from './utility';
 
 import { memo } from "react";
 
@@ -47,8 +48,7 @@ const TextBlockRender = memo(
       .map(line => line.spans.map(span => span.text).join(''))
       .join(' ');
     
-    // Calculate average font size for this block
-    const increasedFontSize = viewportWidth <= 768 ? 13 : 18
+    const increasedFontSize = getTextFontSize(block, viewportWidth);
 
     // Split text into individual words (keep spaces)
     const words = blockText.split(/(\s+)/); // Regex keeps the spaces

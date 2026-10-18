@@ -50,22 +50,22 @@ export default function CustomSlider() {
         className="relative h-8 cursor-pointer touch-none"
       >
         {/* Background track */}
-        <div className="absolute top-1/2 h-1.5 w-full -translate-y-1/2 rounded-full bg-neutral-200" />
+        <div className="absolute top-1/2 h-1.5 w-full -translate-y-1/2 rounded-full bg-muted" />
 
         {/* Progress track */}
         <div
-          className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-neutral-900"
+          className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary"
           style={{ width: `${percentage}%` }}
         />
 
         {/* Thumb */}
         <div
-          className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-neutral-900 shadow-md"
+          className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-background bg-primary shadow-md"
           style={{ left: `${percentage}%` }}
         />
       </div>
 
-      <div className="mt-3 flex justify-between text-sm text-neutral-500">
+      <div className="mt-3 flex justify-between text-sm text-muted-foreground">
         <span>Page 0</span>
         <span>
           Page {value} / {max}

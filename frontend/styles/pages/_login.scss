@@ -216,7 +216,7 @@
 
       background: var(--paper-light);
 
-      box-shadow: 0 0 0 3px rgba(140, 107, 79, 0.15);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-wood) 15%, transparent);
     }
   }
 }

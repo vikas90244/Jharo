@@ -3,154 +3,152 @@
   top: 0;
   z-index: 100;
   width: 100%;
-  background: color-mix(in srgb, var(--surface-elevated) 94%, transparent);
-  backdrop-filter: blur(16px);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--border-subtle);
-  transition: transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              opacity 300ms ease;
+  box-shadow: var(--shadow-sm);
+  transition: transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 300ms ease;
 
-  &--hide-on-zoom {
-    &[data-zoomed="true"] {
-      transform: translateY(-100%);
-      opacity: 0;
-      pointer-events: none;
-    }
+  &--hide-on-zoom[data-zoomed="true"] {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
   }
 }
 
 .app-header__content {
   max-width: var(--content-width);
+  min-height: 70px;
   margin: 0 auto;
-  min-height: 68px;
-  padding: 10px 40px;
+  padding: 10px clamp(20px, 4vw, 48px);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
 .app-header__logo {
-  font-size: 1.18rem;
+  color: var(--text-primary);
+  font-size: 1.24rem;
   font-weight: 700;
   letter-spacing: -0.035em;
-  color: var(--text-primary);
 
   a {
     display: inline-flex;
     align-items: center;
-    gap: 9px;
+    gap: 10px;
     color: inherit;
     text-decoration: none;
     transition: opacity var(--transition-fast);
 
     svg { color: var(--accent-wood); }
-
-    &:hover {
-      opacity: 0.7;
-    }
+    &:hover { opacity: 0.75; }
   }
 }
 
-.app-header__nav {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+.app-header__nav { display: flex; align-items: center; }
+.app-header__profile { position: relative; }
 
-.app-header__account {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
+.app-header__profile-button {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  padding: 3px;
+  color: var(--text-secondary);
+  background: var(--paper-light);
+  border: 1px solid var(--border-subtle);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+
+  &:hover,
+  &[aria-expanded="true"] {
+    color: var(--accent-wood);
+    border-color: var(--border-hover);
+    background: var(--interactive-hover);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &:focus-visible { outline: 2px solid var(--accent-wood); outline-offset: 3px; }
 }
 
 .app-header__avatar {
-  width: 34px;
-  height: 34px;
+  width: 100%;
+  height: 100%;
   display: grid;
   place-items: center;
-  flex: 0 0 auto;
   color: var(--accent-wood);
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
+  background: var(--paper-dark);
   border-radius: 50%;
-  font-size: 0.82rem;
-  font-weight: 650;
+  font-size: 0.86rem;
+  font-weight: 700;
 }
 
-.app-header__user-email {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  font-weight: 500;
+.app-header__profile-menu {
+  position: absolute;
+  top: calc(100% + 11px);
+  right: 0;
+  z-index: 120;
+  width: min(320px, calc(100vw - 28px));
+  padding: 9px;
+  color: var(--text-primary);
+  background: var(--paper-light);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 18px 54px rgba(0, 0, 0, 0.2), var(--shadow-md);
+  transform-origin: top right;
+  animation: profileMenuIn 140ms ease-out;
 }
 
-.app-header__settings-button {
+@keyframes profileMenuIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.app-header__profile-details { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 11px 10px 14px; }
+.app-header__menu-avatar { width: 42px; height: 42px; flex: 0 0 auto; display: grid; place-items: center; color: var(--accent-wood); background: color-mix(in srgb, var(--accent-wood) 15%, var(--paper)); border: 1px solid color-mix(in srgb, var(--accent-wood) 28%, var(--border)); border-radius: 14px; font-size: 0.96rem; font-weight: 700; }
+.app-header__profile-copy { min-width: 0; display: grid; gap: 4px; }
+.app-header__profile-name { overflow: hidden; color: var(--text-primary); font-size: 0.9rem; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.app-header__profile-email { overflow: hidden; color: var(--text-secondary); font-size: 0.78rem; text-overflow: ellipsis; white-space: nowrap; }
+.app-header__menu-divider { height: 1px; margin: 0 7px 6px; background: var(--border-subtle); }
+
+.app-header__menu-item {
+  width: 100%;
+  min-height: 46px;
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 9px 14px;
-  font-size: 0.85rem;
-  font-weight: 500;
+  gap: 11px;
+  padding: 0 12px;
   color: var(--text-primary);
   background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 999px;
+  border: 0;
+  border-radius: 11px;
+  font: inherit;
+  font-size: 0.86rem;
+  text-align: left;
   cursor: pointer;
-  transition: all var(--transition-fast);
 
-  svg {
-    transition: transform var(--transition-fast);
-  }
-
-  &:hover {
-    border-color: var(--border-hover);
-    background: var(--interactive-hover);
-
-    svg {
-      transform: rotate(45deg);
-    }
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
+  svg { flex: 0 0 auto; color: var(--text-secondary); }
+  &:hover:not(:disabled) { background: var(--interactive-hover); }
+  &:focus-visible { outline: 2px solid var(--accent-wood); outline-offset: -2px; }
+  &:disabled { opacity: 0.6; cursor: default; }
 }
 
-.app-header__settings-text {
-  display: inline;
-}
+.app-header__menu-label { flex: 1; }
+.app-header__menu-value { padding: 4px 8px; color: var(--text-secondary); background: var(--interactive-bg); border: 1px solid var(--border-subtle); border-radius: 7px; font-size: 0.72rem; }
 
-/* --------------------------------
-   Responsive
--------------------------------- */
-
-@media (max-width: 800px) {
-  .app-header__content {
-    min-height: 62px;
-    padding: 10px 24px;
-  }
-
-  .app-header__user-email {
-    display: none;
-  }
-
-  .app-header__settings-text {
-    display: none;
-  }
-
-  .app-header__settings-button {
-    padding: 10px;
-    border-radius: 999px;
-    aspect-ratio: 1;
-  }
+.app-header__menu-item--logout {
+  color: var(--text-secondary);
+  svg { color: inherit; }
+  &:hover:not(:disabled) { color: var(--error); background: color-mix(in srgb, var(--error) 10%, transparent); }
 }
 
 @media (max-width: 500px) {
-  .app-header__logo {
-    font-size: 1.15rem;
-  }
-  
-  .app-header__content {
-    min-height: 58px;
-    padding: 8px 16px;
-  }
+  .app-header__content { min-height: 60px; padding: 8px 18px; }
+  .app-header__logo { font-size: 1.15rem; }
+  .app-header__profile-button { width: 40px; height: 40px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-header, .app-header__profile-menu, .app-header__profile-button { transition: none; animation: none; }
 }

@@ -15,7 +15,7 @@ export function getTextFontSize(block: TextBlock, viewportWidth: number): number
 
   const scale = viewportWidth <= 768 ? 1.05 : 1.25;
 
-  return Math.max(viewportWidth <= 768 ? 13 : 14, averageSize * scale);
+  return Math.max(viewportWidth <= 768 ? 16 : 14, averageSize * scale);
 }
 
 
@@ -44,7 +44,8 @@ export function getBlockHeight(
   }
 
   // Text
-  const lineHeight = getTextFontSize(block, viewportWidth) * 1.6;
+  const lineHeight = getTextFontSize(block, viewportWidth)
+    * (viewportWidth <= 768 ? 1.65 : 1.6);
 
   return (
     Math.max(
@@ -112,7 +113,10 @@ export function paginateBlocks(
 
   console.log("viewport width: ", viewportWidth)
   console.log("viewport Height: ", viewportHeight)
-  const availableHeight = Math.max(viewportHeight, 420);
+  const availableHeight = Math.max(
+    viewportHeight - (viewportWidth <= 768 ? 78 : 0),
+    420,
+  );
 
   const readingPages: ReadingPageType[] = [];
 
