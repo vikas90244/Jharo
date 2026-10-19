@@ -1,6 +1,9 @@
 .page {
   min-height: 100vh;
-  background: var(--paper);
+  background:
+    radial-gradient(ellipse at 12% 8%, color-mix(in srgb, var(--accent-wood) 9%, transparent), transparent 34rem),
+    radial-gradient(ellipse at 88% 42%, color-mix(in srgb, var(--accent-sky) 7%, transparent), transparent 38rem),
+    var(--paper);
 }
 
 .library {
@@ -105,13 +108,13 @@
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: clamp(22px, 3.2vw, 42px);
+  gap: clamp(9px, 1.4vw, 16px);
   width: max-content;
   min-width: 100%;
 }
 
 .bookCard {
-  flex: 0 0 clamp(176px, 20vw, 232px);
+  flex: 0 0 clamp(88px, 10vw, 120px);
   min-width: 0;
   padding: 0;
   color: var(--text-primary);
@@ -127,7 +130,7 @@
   &:focus-visible { outline: 2px solid var(--accent-wood); outline-offset: 5px; border-radius: 3px; }
   &:disabled { cursor: default; }
 
-  @media (max-width: 700px) { flex-basis: min(44vw, 210px); }
+  @media (max-width: 700px) { flex-basis: min(25vw, 100px); }
 }
 
 .bookCover {
@@ -165,22 +168,22 @@
 .statusBadge.processing { color: var(--info); }
 .statusBadge.failed { color: var(--error); }
 
-.bookInfo { padding: 13px 1px 0; }
+.bookInfo { padding: 7px 1px 0; }
 
 .bookTitle {
   display: -webkit-box;
-  margin: 0 0 5px;
+  margin: 0 0 3px;
   overflow: hidden;
   color: var(--text-primary);
-  font-family: var(--font-reading), Georgia, serif;
-  font-size: 1.08rem;
+  font-family: inherit;
+  font-size: 0.74rem;
   font-weight: 500;
   line-height: 1.35;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
 
-.bookMeta { margin: 0; color: var(--text-tertiary); font-size: 0.78rem; }
+.bookMeta { margin: 0; color: var(--text-tertiary); font-family: inherit; font-size: 0.65rem; line-height: 1.35; }
 
 .uploadSection {
   width: 100%;

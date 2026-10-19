@@ -3,6 +3,7 @@ from .models import Resource, Page
 from pathlib import Path 
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.db import transaction
 # import json
 
 class ResourceSpliterService:
@@ -55,6 +56,10 @@ class ResourceSpliterService:
                         block["src"] =  f"{self.BASE_URL}{relative_url}"
                         del block["image"]
                         del block["ext"]
+                    # PyMuPDF may include a binary image mask. The page API
+                    # only needs the extracted image URL, and bytes cannot be
+                    # stored in the page JSONField.
+                    block.pop("mask", None)
                 Page.objects.create(
                     resource=self.resource,
                     page_number=i,
@@ -65,17 +70,29 @@ class ResourceSpliterService:
 
 
 def split_resource_into_pages(id ):
-    resource=Resource.objects.get(id=id)
-    image_dir=Path(settings.MEDIA_ROOT)/"resources"/str(resource.id)
-    doc=pymupdf.open(resource.object_path.path)
-    splitter= ResourceSpliterService(resource=resource, image_dir=image_dir, doc=doc)
+    with transaction.atomic():
+        resource = Resource.objects.select_for_update().get(id=id)
+        image_dir = Path(settings.MEDIA_ROOT) / "resources" / str(resource.id)
+        doc = pymupdf.open(resource.object_path.path)
 
-    splitter.generate_cover_image()
-    splitter.split_into_pages()
+        try:
+            # Make retries replace earlier page data instead of duplicating it.
+            # If processing fails, the transaction restores the previous rows.
+            Page.objects.filter(resource=resource).delete()
 
-    resource.no_of_pages = len(doc)
-    resource.processing_status = 'ready'
-    resource.save()
+            splitter = ResourceSpliterService(
+                resource=resource,
+                image_dir=image_dir,
+                doc=doc,
+            )
+            splitter.generate_cover_image()
+            splitter.split_into_pages()
+
+            resource.no_of_pages = len(doc)
+            resource.processing_status = "ready"
+            resource.save()
+        finally:
+            doc.close()
 
 
 

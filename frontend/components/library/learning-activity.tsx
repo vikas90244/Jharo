@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Flame } from "lucide-react";
 import { localDateString } from "@/lib/feature/activity";
 import {
@@ -38,6 +38,16 @@ export function LearningActivity() {
     () => Array.from({ length: 12 }, (_, month) => month),
     [],
   );
+
+  useEffect(() => {
+    const slider = monthSlider.current;
+    const targetMonth = slider?.querySelector<HTMLElement>(
+      `[data-month="${year === new Date().getFullYear() ? new Date().getMonth() : 0}"]`,
+    );
+    if (slider && targetMonth) {
+      slider.scrollLeft = targetMonth.offsetLeft - slider.offsetLeft;
+    }
+  }, [year]);
 
   const scrollMonths = (direction: -1 | 1) => {
     monthSlider.current?.scrollBy({
@@ -132,7 +142,7 @@ export function LearningActivity() {
           const firstWeekday = new Date(year, month, 1).getDay();
           const daysInMonth = new Date(year, month + 1, 0).getDate();
           return (
-            <article className={styles.month} key={`${year}-${month}`}>
+            <article className={styles.month} data-month={month} key={`${year}-${month}`}>
               <h3>
                 {new Intl.DateTimeFormat("en", { month: "long" }).format(
                   new Date(year, month, 1),

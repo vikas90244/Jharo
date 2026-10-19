@@ -14,9 +14,8 @@ interface PageRenderProps {
 export interface ReadingBlock {
   block: Block;
   pageId: number;
-  pageWidth: number;
-  pageHeight: number;
   isHeading?: boolean;
+  isDropCap?: boolean;
 }
 
 export interface ReadingPageType {

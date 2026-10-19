@@ -16,6 +16,7 @@ export function AppHeader({ hideOnZoom = false, className = "" }: AppHeaderProps
   const { user } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const logoutMutation = useLogout();
+  const profileLabel = user?.email || user?.username;
   const [profileOpen, setProfileOpen] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -62,7 +63,7 @@ export function AppHeader({ hideOnZoom = false, className = "" }: AppHeaderProps
           <div className="app-header__logo">
             <Link href="/library" aria-label="Jharo library home">
               <BookOpen size={19} strokeWidth={2.1} />
-              <span>jharo</span>
+              <span>Jharo</span>
             </Link>
           </div>
 
@@ -77,9 +78,9 @@ export function AppHeader({ hideOnZoom = false, className = "" }: AppHeaderProps
                 aria-expanded={profileOpen}
                 title="Profile"
               >
-                {user?.email ? (
+                {profileLabel ? (
                   <span className="app-header__avatar" aria-hidden="true">
-                    {(user.first_name || user.email).charAt(0).toUpperCase()}
+                    {profileLabel.trim().charAt(0).toUpperCase()}
                   </span>
                 ) : <UserRound size={20} aria-hidden="true" />}
               </button>

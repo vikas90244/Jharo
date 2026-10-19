@@ -158,7 +158,7 @@
 
 .monthSlider {
   display: grid;
-  grid-auto-columns: minmax(226px, 246px);
+  grid-auto-columns: minmax(152px, 164px);
   grid-auto-flow: column;
   gap: 10px;
   overflow-x: auto;
@@ -171,8 +171,8 @@
 }
 
 .month {
-  min-width: 226px;
-  padding: 15px 14px 14px;
+  min-width: 152px;
+  padding: 10px 9px;
   background: linear-gradient(145deg, var(--paper-light), var(--paper));
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
@@ -180,7 +180,7 @@
   scroll-snap-align: start;
 
   h3 {
-    margin: 0 0 11px;
+    margin: 0 0 7px;
     color: var(--text-primary);
     font-size: 0.82rem;
     font-weight: 600;
@@ -189,16 +189,17 @@
 
 .monthGrid {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 5px;
+  grid-template-columns: repeat(7, 14px);
+  justify-content: space-between;
+  gap: 3px;
 }
 
 .weekday {
   display: grid;
   place-items: center;
-  height: 22px;
+  height: 15px;
   color: var(--text-tertiary);
-  font-size: 0.62rem;
+  font-size: 0.5rem;
 }
 
 .day {
@@ -208,8 +209,8 @@
   color: var(--activity-day-text);
   background: var(--activity-empty);
   border: 1px solid transparent;
-  border-radius: 6px;
-  font-size: 0.65rem;
+  border-radius: 5px;
+  font-size: 0;
   cursor: pointer;
   transition: background-color 180ms ease, color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 
@@ -406,7 +407,7 @@
   }
 
   .monthSlider {
-    grid-auto-columns: 226px;
+    grid-auto-columns: minmax(152px, 164px);
   }
 
   .dayDetail {

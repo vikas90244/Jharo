@@ -28,6 +28,7 @@ html[data-theme="light"] {
   --paper: #f8f4ea;
   --paper-dark: #efe9d5;
   --paper-light: #fdfbf5;
+  --header-control-bg: #f2e8d5;
   --reader-background: #eee9df;
   --reader-page: #f4ead5;
   --reader-text: #2b2622;
@@ -100,6 +101,7 @@ html[data-theme="dark"] {
   --paper: #111316;
   --paper-dark: #090a0c;
   --paper-light: #1b1e22;
+  --header-control-bg: #342d23;
   --reader-background: #08090b;
   --reader-page: #000000;
   --reader-text: #ffffff;
@@ -113,10 +115,10 @@ html[data-theme="dark"] {
   --activity-header: #1b1e22;
   --activity-empty: #25292f;
   --activity-day-text: #d1d5db;
-  --activity-level-1: #343941;
-  --activity-level-2: #555d68;
-  --activity-level-3: #858e9a;
-  --activity-level-4: #c3c9d1;
+  --activity-level-1: #713f12;
+  --activity-level-2: #a16207;
+  --activity-level-3: #d97706;
+  --activity-level-4: #fbbf24;
   --activity-word-outline: #b7c6a2;
   --error-surface: #302020;
   --surface: rgba(255, 255, 255, 0.035);

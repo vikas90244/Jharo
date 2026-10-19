@@ -56,6 +56,42 @@ def _api_ninjas(word):
     }
 
 
+def _merriam_webster(word):
+    api_key = config("MERRIAM_WEBSTER_API_KEY", default="")
+    if not api_key:
+        return None
+
+    url = (
+        "https://www.dictionaryapi.com/api/v3/references/collegiate/json/"
+        f"{quote(word, safe='')}?{urlencode({'key': api_key})}"
+    )
+    data = _request_json(url)
+    if not isinstance(data, list):
+        return None
+
+    for entry in data:
+        if not isinstance(entry, dict):
+            continue
+        definitions = entry.get("shortdef", [])
+        if not definitions:
+            continue
+
+        pronunciations = entry.get("hwi", {}).get("prs", [])
+        phonetic = next(
+            (pronunciation.get("mw", "") for pronunciation in pronunciations if pronunciation.get("mw")),
+            "",
+        )
+        return {
+            "definition": definitions[0],
+            "part_of_speech": entry.get("fl", ""),
+            "phonetic": phonetic,
+            "example": "",
+            "source_name": "Merriam-Webster Collegiate Dictionary",
+            "source_url": f"https://www.merriam-webster.com/dictionary/{quote(word, safe='')}",
+        }
+    return None
+
+
 def _dictionary_api_dev(word):
     url = f"https://api.dictionaryapi.dev/api/v2/entries/en/{quote(word, safe='')}"
     data = _request_json(url)
@@ -85,7 +121,7 @@ def _dictionary_api_dev(word):
 
 def fetch_word_meaning(word):
     """Return the first valid meaning from concurrent providers."""
-    providers = (_free_dictionary, _api_ninjas, _dictionary_api_dev)
+    providers = (_free_dictionary, _api_ninjas, _merriam_webster, _dictionary_api_dev)
 
     executor = ThreadPoolExecutor(max_workers=len(providers))
     pending = {

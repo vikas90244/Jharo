@@ -4,7 +4,7 @@ import { ReadingBlock
  } from "./page-render";
 import styles from './page-render.module.scss';
 import type {  ImageBlock, TextBlock } from '@/lib/feature/library';
-import { getTextFontSize } from './utility';
+import { getTextFontSize } from './reading-text';
 
 import { memo } from "react";
 
@@ -36,12 +36,13 @@ ImageBlockRender.displayName = 'ImageBlockRender'
 // Renders paragraphs with clickable words
 
 const TextBlockRender = memo(
-  ({ block, pageId, viewportWidth, onWordClick, isHeading }: { 
+  ({ block, pageId, viewportWidth, onWordClick, isHeading, isDropCap }: {
     block: TextBlock; 
     pageId: number;
     viewportWidth: number;
     onWordClick: (word: string, x: number, y: number) => void;
     isHeading?: boolean;
+    isDropCap?: boolean;
   }) => {
     //  Combine all text from all lines into one paragraph
     const blockText = block.lines
@@ -66,7 +67,7 @@ const TextBlockRender = memo(
     return (
       <p
         key={`${pageId}-${block.number}`}
-        className={`${styles.textBlock} ${isHeading ? styles.chapterHeading : ''}`}
+        className={`${styles.textBlock} ${isHeading ? styles.chapterHeading : ''} ${isDropCap ? styles.dropCap : ''}`}
         style={{
           fontSize: increasedFontSize,
         }}
@@ -109,7 +110,7 @@ export const ReadingBlockRender = memo(
     viewportWidth,
     onWordClick,
   }: ReadingBlockRenderProps) => {
-    const { block, pageId, isHeading } = readingBlock;
+    const { block, pageId, isHeading, isDropCap } = readingBlock;
 
     if (block.type === 1) {
       return <ImageBlockRender block={block} />;
@@ -123,6 +124,7 @@ export const ReadingBlockRender = memo(
           viewportWidth={viewportWidth}
           onWordClick={onWordClick ?? (() => {})}
           isHeading={isHeading}
+          isDropCap={isDropCap}
         />
       );
     }

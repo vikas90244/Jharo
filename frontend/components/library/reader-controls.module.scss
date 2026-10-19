@@ -6,12 +6,11 @@
   bottom: 0.45rem;
   left: 50%;
   z-index: 4;
-  width: min(320px, 42vw);
-  height: 1.45rem;
-  padding: 0.15rem 0.25rem;
+  width: min(360px, 46vw);
+  height: 1.8rem;
+  padding: 0.2rem 0.7rem;
   transform: translateX(-50%);
-  background: var(--reader-control);
-  border-radius: 0.25rem;
+  background: transparent;
 
   @media (max-width: 768px) {
     box-sizing: border-box;
@@ -19,30 +18,32 @@
     height: 2.7rem;
     bottom: calc(0.4rem + env(safe-area-inset-bottom, 0px));
     padding: 0.65rem 0.7rem;
-    background: var(--reader-control);
-    box-shadow: var(--shadow-md);
-    border: 1px solid var(--border-subtle);
+    background: transparent;
+    box-shadow: none;
+    border: 0;
   }
 }
 
 // Page Info
 .pageInfo {
   position: absolute;
-  top: 1rem;
+  top: -0.7rem;
   right: 0;
   left: 0;
   display: flex;
   justify-content: center;
   align-items: baseline;
   gap: 0.2rem;
-  font-family: Georgia, serif;
-  font-size: 0.58rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
   color: var(--text-secondary);
   flex-shrink: 0;
 
   @media (max-width: 768px) {
-    top: -0.85rem;
-    font-size: 0.68rem;
+    top: -0.8rem;
+    font-size: 0.72rem;
   }
 }
 
@@ -69,18 +70,21 @@
 .progressContainer {
   position: relative;
   width: 100%;
-  height: 3px;
+  height: 5px;
   display: flex;
   align-items: center;
+  background: transparent;
 }
 
 .progressFill {
   position: absolute;
-  top: 0;
+  top: 50%;
   left: 0;
-  height: 100%;
-  background: var(--accent-wood);
-  border-radius: 3px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-wood), var(--accent-wood-hover));
+  border-radius: 999px;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent-wood) 34%, transparent);
+  transform: translateY(-50%);
   pointer-events: none;
   transition: width 0.2s ease;
 }
@@ -88,28 +92,29 @@
 .progressSlider {
   position: relative;
   width: 100%;
-  height: 14px;
+  height: 22px;
   margin: 0;
   -webkit-appearance: none;
   appearance: none;
-  background: color-mix(in srgb, var(--reader-text) 22%, transparent);
-  border-radius: 3px;
+  background: transparent;
+  border-radius: 999px;
   cursor: pointer;
   z-index: 2;
 
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    background: var(--reader-control);
-    border: 1px solid var(--accent-wood);
+    background: var(--accent-wood-hover);
+    border: 2px solid var(--reader-page);
+    box-shadow: 0 0 0 1px var(--accent-wood), 0 1px 8px color-mix(in srgb, var(--accent-wood) 45%, transparent);
     cursor: grab;
     transition: all 0.15s ease;
 
     &:hover {
-      transform: scale(1.2);
+      transform: scale(1.18);
       background: var(--paper-light);
     }
 
@@ -120,12 +125,12 @@
   }
 
   &::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    border: none;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    background: var(--reader-control);
-    border: 1px solid var(--accent-wood);
+    background: var(--accent-wood-hover);
+    border: 2px solid var(--reader-page);
+    box-shadow: 0 0 0 1px var(--accent-wood), 0 1px 8px color-mix(in srgb, var(--accent-wood) 45%, transparent);
     cursor: grab;
     transition: all 0.15s ease;
 
@@ -139,6 +144,9 @@
       transform: scale(1.1);
     }
   }
+
+  &::-webkit-slider-runnable-track { background: transparent; }
+  &::-moz-range-track { background: transparent; }
 
   &:focus {
     outline: none;

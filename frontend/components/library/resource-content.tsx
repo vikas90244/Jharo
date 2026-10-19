@@ -24,7 +24,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import styles from "./library-content.module.scss";
-import { paginateBlocks } from "./utility";
+import { prepareReadingPages } from "./reading-pages";
 import { localDateString, recordPageRead } from "@/lib/feature/activity";
 
 const PAGE_READ_THRESHOLD_MS = 90 * 1000;
@@ -35,17 +35,16 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
 
   const [currentRenderedPage, setCurrentRenderedPage] = useState(0);
   const [pendingBookPage, setPendingBookPage] = useState<number | null>(null);
+  const [resumeReadyBookId, setResumeReadyBookId] = useState<number | null>(null);
 
-  const [viewportSize, setViewportSize] = useState({
-    width: 0,
-    height: 0,
-  });
+  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
 
   const [loadedPageRange, setLoadedPageRange] = useState({
     start: 0,
     end: 15,
   });
   const recordedPageVisit = useRef<string | null>(null);
+  const hasResumedPage = useRef(false);
 
   const {
     data: content,
@@ -75,12 +74,10 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
     const viewport = viewportRef.current;
     if (!viewport) return;
 
-    const updateViewportSize = () => {
-      setViewportSize({
-        width: viewport.clientWidth,
-        height: viewport.clientHeight,
-      });
-    };
+    const updateViewportSize = () => setViewportSize({
+      width: viewport.clientWidth,
+      height: viewport.clientHeight,
+    });
 
     updateViewportSize();
 
@@ -94,10 +91,10 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
 
 
 
-  const readingPages = useMemo(() => {
-    return paginateBlocks( content || [], viewportSize.width, viewportSize.height);
-  }, [ content, viewportSize.width, viewportSize.height]
-);
+  const readingPages = useMemo(
+    () => prepareReadingPages(content ?? [], viewportSize.width, viewportSize.height),
+    [content, viewportSize.width, viewportSize.height],
+  );
 
   const renderedPageCount = readingPages.length;
 
@@ -145,7 +142,12 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
   }, [lastRenderedPageIndex]);
 
   useEffect(() => {
-    if (pendingBookPage === null || isPlaceholderData) return;
+    if (
+      pendingBookPage === null ||
+      isPlaceholderData ||
+      pendingBookPage < loadedPageRange.start ||
+      pendingBookPage > loadedPageRange.end
+    ) return;
     const matchingIndex = readingPages.findIndex(
       (page) => pendingBookPage >= page.startpage && pendingBookPage <= page.endpage,
     );
@@ -159,18 +161,55 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
       : previousIndex >= 0 ? previousIndex : nextIndex;
     if (renderedIndex >= 0) {
       setCurrentRenderedPage(renderedIndex);
+      hasResumedPage.current = true;
       setPendingBookPage(null);
     }
-  }, [pendingBookPage, readingPages, isPlaceholderData]);
+  }, [pendingBookPage, readingPages, isPlaceholderData, loadedPageRange]);
 
   useEffect(() => {
-    setCurrentRenderedPage(0);
+    if (!hasResumedPage.current) setCurrentRenderedPage(0);
   }, [bookId, viewportSize.width, viewportSize.height]);
 
   useEffect(() => {
+    hasResumedPage.current = false;
+    setCurrentRenderedPage(0);
     setLoadedPageRange({ start: 0, end: 15 });
     setPendingBookPage(null);
+    setResumeReadyBookId(null);
   }, [bookId]);
+
+  useEffect(() => {
+    if (!resource) return;
+
+    const storageKey = `jharo:reading-progress:${bookId}`;
+    const storedPage = window.localStorage.getItem(storageKey);
+    const savedPage = storedPage === null ? null : Number(storedPage);
+    const lastBookPage = Math.max(resource.no_of_pages - 1, 0);
+
+    setResumeReadyBookId(bookId);
+    if (savedPage === null || !Number.isInteger(savedPage) || savedPage <= 0) return;
+
+    const targetPage = Math.min(savedPage, lastBookPage);
+    const start = Math.max(0, targetPage - 5);
+    const end = Math.min(targetPage + 5, lastBookPage);
+    setPendingBookPage(targetPage);
+    setLoadedPageRange({ start, end });
+  }, [bookId, resource?.no_of_pages]);
+
+  useEffect(() => {
+    if (
+      !visiblePage ||
+      isLoading ||
+      isPlaceholderData ||
+      pendingBookPage !== null ||
+      resumeReadyBookId !== bookId
+    ) return;
+
+    window.localStorage.setItem(
+      `jharo:reading-progress:${bookId}`,
+      String(visiblePage.startpage),
+    );
+  }, [bookId, visiblePage?.startpage, isLoading, isPlaceholderData, pendingBookPage, resumeReadyBookId]);
 
   const goToNextRenderedPage = useCallback(() => {
     if (isFetching) return;

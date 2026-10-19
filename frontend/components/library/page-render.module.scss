@@ -12,13 +12,24 @@
 
 .pageContent {
   position: relative;
+  box-sizing: border-box;
   width: 100%;
   max-width: 1400px;
   height: 100%;
   margin: 0 auto; // Center the column
   background: transparent;
   padding: 2rem 1.5rem 0rem 1.5rem;
-  overflow: visible;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--reader-text) 30%, transparent) transparent;
+
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--reader-text) 30%, transparent);
+    border-radius: 999px;
+  }
   
   // SINGLE COLUMN LAYOUT
   display: block;
@@ -31,6 +42,7 @@
   }
   
   @media (max-width: 768px) {
+    width: 100%;
     padding: 0.75rem 1rem 1rem;
     font-size: 17px;
   }
@@ -105,6 +117,14 @@
   font-weight: 700;
   text-align: left;
   letter-spacing: 0;
+}
+
+.dropCap::first-letter {
+  float: left;
+  margin: 0.04em 0.08em 0 0;
+  font-size: 3em;
+  font-weight: 700;
+  line-height: 0.78;
 }
 
 // Clickable words
@@ -322,16 +342,7 @@ html[data-theme='light'] {
 
 @media (max-width: 600px) {
   .pageContent {
-    box-sizing: border-box;
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
     padding: 0.9rem 1.1rem 4rem;
-    scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--reader-text) 30%, transparent) transparent;
-
-    &::-webkit-scrollbar { width: 4px; }
-    &::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--reader-text) 30%, transparent); border-radius: 999px; }
   }
 
   .textBlock {
