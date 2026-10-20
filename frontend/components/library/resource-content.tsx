@@ -100,11 +100,14 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
 
   const lastRenderedPageIndex = Math.max(0, renderedPageCount - 1);
   const visiblePage = readingPages[currentRenderedPage];
+  const visibleBookStartPage = visiblePage?.startpage;
+  const visibleBookEndPage = visiblePage?.endpage;
+  const resourcePageCount = resource?.no_of_pages;
 
   useEffect(() => {
-    if (!visiblePage || isLoading || isPlaceholderData) return;
+    if (visibleBookEndPage === undefined || isLoading || isPlaceholderData) return;
 
-    const visitKey = `${bookId}:${visiblePage.endpage}`;
+    const visitKey = `${bookId}:${visibleBookEndPage}`;
     if (recordedPageVisit.current === visitKey) return;
 
     let elapsedMs = 0;
@@ -116,7 +119,7 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
 
       recordedPageVisit.current = visitKey;
       window.clearInterval(timer);
-      void recordPageRead(bookId, visiblePage.endpage + 1, localDateString()).catch(() => undefined);
+      void recordPageRead(bookId, visibleBookEndPage + 1, localDateString()).catch(() => undefined);
     }, 1000);
 
     const handleVisibilityChange = () => {
@@ -133,7 +136,7 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [bookId, visiblePage?.endpage, isLoading, isPlaceholderData]);
+  }, [bookId, visibleBookEndPage, isLoading, isPlaceholderData]);
 
   useEffect(() => {
     setCurrentRenderedPage((pageIndex) =>
@@ -179,12 +182,12 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
   }, [bookId]);
 
   useEffect(() => {
-    if (!resource) return;
+    if (resourcePageCount === undefined) return;
 
     const storageKey = `jharo:reading-progress:${bookId}`;
     const storedPage = window.localStorage.getItem(storageKey);
     const savedPage = storedPage === null ? null : Number(storedPage);
-    const lastBookPage = Math.max(resource.no_of_pages - 1, 0);
+    const lastBookPage = Math.max(resourcePageCount - 1, 0);
 
     setResumeReadyBookId(bookId);
     if (savedPage === null || !Number.isInteger(savedPage) || savedPage <= 0) return;
@@ -194,11 +197,11 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
     const end = Math.min(targetPage + 5, lastBookPage);
     setPendingBookPage(targetPage);
     setLoadedPageRange({ start, end });
-  }, [bookId, resource?.no_of_pages]);
+  }, [bookId, resourcePageCount]);
 
   useEffect(() => {
     if (
-      !visiblePage ||
+      visibleBookStartPage === undefined ||
       isLoading ||
       isPlaceholderData ||
       pendingBookPage !== null ||
@@ -207,9 +210,9 @@ function ResourceContent({ bookId = 1 }: { bookId?: number }) {
 
     window.localStorage.setItem(
       `jharo:reading-progress:${bookId}`,
-      String(visiblePage.startpage),
+      String(visibleBookStartPage),
     );
-  }, [bookId, visiblePage?.startpage, isLoading, isPlaceholderData, pendingBookPage, resumeReadyBookId]);
+  }, [bookId, visibleBookStartPage, isLoading, isPlaceholderData, pendingBookPage, resumeReadyBookId]);
 
   const goToNextRenderedPage = useCallback(() => {
     if (isFetching) return;

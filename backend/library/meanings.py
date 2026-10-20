@@ -62,7 +62,7 @@ def _merriam_webster(word):
         return None
 
     url = (
-        "https://www.dictionaryapi.com/api/v3/references/collegiate/json/"
+        "https://www.dictionaryapi.com/api/v3/references/sd2/json/"
         f"{quote(word, safe='')}?{urlencode({'key': api_key})}"
     )
     data = _request_json(url)
@@ -86,8 +86,8 @@ def _merriam_webster(word):
             "part_of_speech": entry.get("fl", ""),
             "phonetic": phonetic,
             "example": "",
-            "source_name": "Merriam-Webster Collegiate Dictionary",
-            "source_url": f"https://www.merriam-webster.com/dictionary/{quote(word, safe='')}",
+            "source_name": "Merriam-Webster Learner's Dictionary",
+            "source_url": f"https://learnersdictionary.com/definition/{quote(word, safe='')}",
         }
     return None
 

@@ -15,23 +15,25 @@ export function prepareReadingPages(
     ? Math.max(Math.floor(viewportHeight * fillRatio), 1)
     : 320;
   const readingPages: ReadingPageType[] = [];
-  let currentPage: ReadingPageType | null = null;
-  let currentHeight = 0;
+  const current = {
+    page: null as ReadingPageType | null,
+    height: 0,
+  };
 
   const finishCurrentPage = () => {
-    if (!currentPage?.blocks.length) return;
-    readingPages.push(currentPage);
-    currentPage = null;
-    currentHeight = 0;
+    if (!current.page?.blocks.length) return;
+    readingPages.push(current.page);
+    current.page = null;
+    current.height = 0;
   };
 
   const addBlock = (block: ReadingBlock, pageNumber: number) => {
-    if (!currentPage) {
-      currentPage = { blocks: [], startpage: pageNumber, endpage: pageNumber };
+    if (!current.page) {
+      current.page = { blocks: [], startpage: pageNumber, endpage: pageNumber };
     }
-    currentPage.blocks.push(block);
-    currentPage.startpage = Math.min(currentPage.startpage, pageNumber);
-    currentPage.endpage = Math.max(currentPage.endpage, pageNumber);
+    current.page.blocks.push(block);
+    current.page.startpage = Math.min(current.page.startpage, pageNumber);
+    current.page.endpage = Math.max(current.page.endpage, pageNumber);
   };
 
   for (const page of pages) {
@@ -45,24 +47,24 @@ export function prepareReadingPages(
         isDropCap,
       };
       const blockHeight = estimateBlockHeight(block, page.width, viewportWidth, viewportHeight);
-      const exceedsHeight = currentHeight + blockHeight > availableHeight;
+      const exceedsHeight = current.height + blockHeight > availableHeight;
 
       const startsChapter = startsNewChapter(block)
         || (index === 0 && readingBlock.isHeading);
-      if (startsChapter && currentPage?.blocks.length) {
+      if (startsChapter && current.page?.blocks.length) {
         finishCurrentPage();
       }
 
       // Start a new reading page before any block would make this one feel crowded.
-      if (currentPage?.blocks.length && exceedsHeight) {
+      if (current.page?.blocks.length && exceedsHeight) {
         finishCurrentPage();
       }
 
       addBlock(readingBlock, page.page_number);
-      currentHeight += blockHeight;
+      current.height += blockHeight;
 
       // A single oversized block can still scroll, but never pull more blocks into it.
-      if (currentHeight >= availableHeight) finishCurrentPage();
+      if (current.height >= availableHeight) finishCurrentPage();
     }
   }
 

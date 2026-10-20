@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from decouple import config 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-
+import dj_database_url
 from dotenv import load_dotenv
 load_dotenv()
 import os 
@@ -28,6 +28,9 @@ MEDIA_URL='/media/'
 SECRET_KEY = config("SECRET_KEY")
 
 DEBUG = config("DEBUG", cast=bool)
+
+# Railway terminates HTTPS before forwarding requests to the app container.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=lambda v: [s.strip() for s in v.split(",")])
 # Application definition
@@ -68,6 +71,11 @@ CORS_ALLOWED_ORIGINS = config(
     default=f"{FRONTEND_URL},http://127.0.0.1:3000",
     cast=lambda value: [origin.strip() for origin in value.split(",") if origin.strip()],
 )
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="",
+    cast=lambda value: [origin.strip() for origin in value.split(",") if origin.strip()],
+)
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
@@ -91,25 +99,24 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-# if DEBUG:
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-# else:
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": os.getenv("POSTGRES_DB"),
-#         "USER": os.getenv("POSTGRES_USER"),
-#         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-#         "HOST": os.getenv("DB_HOST"),
-#         "PORT": os.getenv("DB_PORT"),
-#     }
-# }
+# Database
+DATABASE_URL = config("DATABASE_URL", default="")
 
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+        )
+    }
+else:
+    # Local development fallback
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
@@ -189,7 +196,9 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
-BASE_URL= os.getenv("BASE_URL")
+BASE_URL = config("BASE_URL", default="").rstrip("/")
+if not DEBUG and BASE_URL.startswith("http://"):
+    BASE_URL = "https://" + BASE_URL[len("http://"):]
 
 # celery related configs 
 

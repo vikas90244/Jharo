@@ -6,6 +6,7 @@ click==8.5.0
 click-didyoumean==0.3.1
 click-plugins==1.1.1.2
 click-repl==0.4.0
+dj-database-url==3.1.2
 Django==6.0.7
 django-cors-headers==4.9.0
 django-extensions==4.1
@@ -17,6 +18,8 @@ kombu==5.6.2
 packaging==26.3
 pillow==12.3.0
 prompt_toolkit==3.0.53
+psycopg==3.3.6
+psycopg-binary==3.3.6
 PyJWT==2.13.0
 pymupdf==1.28.2
 python-dateutil==2.9.0.post0
@@ -34,3 +37,4 @@ uvicorn==0.54.0
 vine==5.1.0
 wcwidth==0.9.1
 psycopg[binary]
+honcho==2.0.0

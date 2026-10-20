@@ -19,16 +19,6 @@ services:
     depends_on:
       - db
       - redis
-  celery:
-    build: ./backend
-    command: celery -A config worker --loglevel=info
-    env_file:
-      - ./backend/.env
-    volumes:
-      - D:\jharo\backend\media:/app/media
-    depends_on:
-      - db
-      - redis
   db:
     image: postgres:18
     env_file:

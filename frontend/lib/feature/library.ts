@@ -6,6 +6,7 @@ export interface Resource {
   no_of_pages: number;
   cover_image: string | null;
   processing_status: 'pending' | 'processing' | 'ready' | 'failed';
+  is_public: boolean;
   file_size: number;
   created_at: string;
   updated_at: string;

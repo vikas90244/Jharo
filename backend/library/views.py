@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta
 from urllib.error import URLError
 
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from rest_framework.views import APIView
@@ -62,8 +62,8 @@ class UserResourcesView(APIView):
     
     def get(self, request):
         resources = Resource.objects.filter(
-            owner=request.user
-        ).order_by('-created_at')
+            Q(owner=request.user) | Q(is_public=True)
+        ).distinct().order_by('-created_at')
         
         serializer = ResourceSerializer(
             resources,
@@ -75,12 +75,32 @@ class UserResourcesView(APIView):
 
 
 
+class PublicResourcesView(APIView):
+    """List ready-to-read books available to everyone."""
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        resources = Resource.objects.filter(
+            is_public=True,
+            processing_status="ready",
+        ).order_by("title")
+        serializer = ResourceSerializer(resources, many=True, context={"request": request})
+        return Response(serializer.data)
+
+
+def accessible_resources(request):
+    resources = Resource.objects.all()
+    if request.user.is_authenticated:
+        return resources.filter(Q(is_public=True) | Q(owner=request.user))
+    return resources.filter(is_public=True)
+
+
 class ResourceStreamView(APIView):
     permission_classes = [AllowAny]
     
     def get(self, request, pk):
         try:
-            resource = Resource.objects.get(pk=pk)
+            resource = accessible_resources(request).get(pk=pk)
             if not resource.object_path:
                 raise Http404("resource file not found")
 
@@ -104,6 +124,7 @@ class ResourceRangeView(APIView):
     permission_classes = [AllowAny]
     
     def get(self, request, pk):
+        get_object_or_404(accessible_resources(request), pk=pk)
         start = request.query_params.get("start")
         end = request.query_params.get("end")
         pages = Page.objects.filter(
@@ -111,7 +132,7 @@ class ResourceRangeView(APIView):
             page_number__gte=start,
             page_number__lte=end
         ).order_by("page_number")
-        serializer = PageSerializer(pages, many=True)
+        serializer = PageSerializer(pages, many=True, context={"request": request})
         return Response(serializer.data)
 
 
@@ -248,7 +269,10 @@ class RecordPageReadView(APIView):
         if page_number < 1:
             return Response({"error": "A valid page number is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        resource = get_object_or_404(Resource, id=resource_id, owner=request.user)
+        resource = get_object_or_404(
+            Resource.objects.filter(Q(owner=request.user) | Q(is_public=True)),
+            id=resource_id,
+        )
         with transaction.atomic():
             _, created = PageRead.objects.get_or_create(
                 user=request.user,

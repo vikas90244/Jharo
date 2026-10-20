@@ -4,6 +4,7 @@ from .views import (
     ResourceRangeView,
     ResourceUploadView,
     UserResourcesView,
+    PublicResourcesView,
     LearningActivityView,
     LearningActivityDayView,
     RecordLearnedWordView,
@@ -14,6 +15,7 @@ urlpatterns = [
     # Upload & Library
     path('upload/', ResourceUploadView.as_view(), name='resource-upload'),
     path('my-books/', UserResourcesView.as_view(), name='user-resources'),
+    path('public-books/', PublicResourcesView.as_view(), name='public-resources'),
     path('activity/', LearningActivityView.as_view(), name='learning-activity'),
     path('activity/words/', RecordLearnedWordView.as_view(), name='record-learned-word'),
     path('activity/pages/', RecordPageReadView.as_view(), name='record-page-read'),

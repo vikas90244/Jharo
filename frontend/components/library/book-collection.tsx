@@ -49,7 +49,7 @@ export function BookCollection({ books, isLoading, isError, onRetry, onOpenBook 
       <div className={styles.sectionHeading}>
         <div>
           <div className={styles.eyebrow}>COLLECTION</div>
-          <h2 id="books-title" className={styles.sectionTitle}>Your books</h2>
+          <h2 id="books-title" className={styles.sectionTitle}>Your library</h2>
         </div>
         <div className={styles.collectionActions}>
           <span className={styles.bookCount}>{books.length} {books.length === 1 ? "book" : "books"}</span>
@@ -106,7 +106,10 @@ export function BookCollection({ books, isLoading, isError, onRetry, onOpenBook 
                 </div>
                 <div className={styles.bookInfo}>
                   <h3 className={styles.bookTitle}>{book.title}</h3>
-                  <p className={styles.bookMeta}>{book.no_of_pages > 0 ? `${book.no_of_pages} pages` : "Preparing your book"}</p>
+                  <p className={styles.bookMeta}>
+                    {book.is_public ? "Community book · " : ""}
+                    {book.no_of_pages > 0 ? `${book.no_of_pages} pages` : "Preparing your book"}
+                  </p>
                 </div>
               </button>
             );

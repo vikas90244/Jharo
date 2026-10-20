@@ -1,5 +1,7 @@
 
 # Create your views here.
+import logging
+
 from django.contrib.auth.models import User
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -13,6 +15,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.conf import settings 
 from rest_framework.permissions import AllowAny
+
+logger = logging.getLogger(__name__)
 
 class RegisterView(APIView):
     def post(self, request):
@@ -83,41 +87,44 @@ class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        email = (request.data.get('email') or '').strip().lower()
-        password = request.data.get('password')
-        account = User.objects.filter(email__iexact=email).first()
-        user = authenticate(
-            request=request,
-            username=account.username if account else email,
-            password=password,
-        )
-        
-        if user is not None:
-            if not user.is_active:
-                return Response({"error": "Please verify your email first."}, status=status.HTTP_403_FORBIDDEN)
-            
-            refresh = RefreshToken.for_user(user)
-            response = Response({"message": "Login successful"})
-            
-            # Set access token cookie
-            response.set_cookie(
-                key='access',
-                value=str(refresh.access_token),
-                httponly=True,
-                secure=False, # Set to True in production with HTTPS
-                samesite='Lax'
+        try:
+            email = (request.data.get('email') or '').strip().lower()
+            password = request.data.get('password')
+            account = User.objects.filter(email__iexact=email).first()
+            user = authenticate(
+                request=request,
+                username=account.username if account else email,
+                password=password,
             )
-            # Set refresh token cookie
-            response.set_cookie(
-                key='refresh',
-                value=str(refresh),
-                httponly=True,
-                secure=False, # Set to True in production
-                samesite='Lax'
-            )
-            return response
-            
-        return Response({"error": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
+
+            if user is not None:
+                if not user.is_active:
+                    return Response({"error": "Please verify your email first."}, status=status.HTTP_403_FORBIDDEN)
+
+                refresh = RefreshToken.for_user(user)
+                response = Response({"message": "Login successful"})
+
+                response.set_cookie(
+                    key='access',
+                    value=str(refresh.access_token),
+                    httponly=True,
+                    secure=True,
+                    samesite='None',
+                )
+                response.set_cookie(
+                    key='refresh',
+                    value=str(refresh),
+                    httponly=True,
+                    secure=True,
+                    samesite='None',
+                )
+                return response
+
+            return Response({"error": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception:
+            # Log the traceback for Railway without recording submitted credentials or tokens.
+            logger.exception("Unhandled exception while processing login request")
+            raise
 
 class CookieTokenRefreshView(APIView):
     # An expired access cookie must not block a valid refresh cookie from being used.
@@ -135,8 +142,8 @@ class CookieTokenRefreshView(APIView):
                 key='access',
                 value=str(refresh.access_token),
                 httponly=True,
-                secure=False,
-                samesite='Lax'
+                secure=True,
+                samesite='None',
             )
             return response
         except Exception as e:
@@ -148,8 +155,8 @@ class LogoutView(APIView):
     
     def post(self, request):
         response = Response({"message": "Successfully logged out."})
-        response.delete_cookie('access')
-        response.delete_cookie('refresh')
+        response.delete_cookie('access', samesite='None', secure=True)
+        response.delete_cookie('refresh', samesite='None', secure=True)
         return response
 
 class CurrentUserView(APIView):
