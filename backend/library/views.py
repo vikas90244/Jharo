@@ -177,12 +177,8 @@ class CompleteUploadView(APIView):
             if resource.status == Resource.Status.PENDING:
                 resource.status = Resource.Status.PROCESSING
                 resource.save(update_fields=["status", "updated_at"])
-
-                # from .tasks import process_resource
-
-                # transaction.on_commit(
-                #     lambda: process_resource.delay(str(resource.id))
-                # )
+                resource_id = str(resource.id)
+                transaction.on_commit(lambda: split_book.delay(resource_id))
 
             elif resource.status not in (
                 Resource.Status.PROCESSING,

@@ -30,9 +30,10 @@ class ResourceSerializer(serializers.ModelSerializer):
         return filename[:-4] if filename.lower().endswith(".pdf") else filename
 
     def get_cover_image(self, resource):
-        object_key= resource.cover_image_key
-        url = create_download_url(object_key, expires_in=900)
-        return url
+        object_key = resource.cover_image_key
+        if not object_key:
+            return None
+        return create_download_url(object_key, expires_in=900)
 
 
 class ResourceUploadSerializer(serializers.ModelSerializer):
@@ -65,7 +66,6 @@ class PageSerializer(serializers.ModelSerializer):
                         object_key, 
                         expires_in=900
                     )
-                    print(block["src"])
 
         return data
 

@@ -114,7 +114,7 @@ def split_resource_into_pages(id):
             splitter.generate_cover_image()
             splitter.split_into_pages()
             resource.no_of_pages = len(doc)
-            resource.processing_status = "ready"
+            resource.status = Resource.Status.READY
             resource.save()
         finally:
             doc.close()

@@ -17,6 +17,15 @@ services:
     depends_on:
       - db
       - redis
+  celery:
+    build: ./backend
+    container_name: jharo_celery
+    command: ["celery", "-A", "config", "worker", "--loglevel=info"]
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db
+      - redis
   db:
     image: postgres:18
     env_file:
