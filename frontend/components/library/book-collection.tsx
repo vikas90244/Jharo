@@ -12,7 +12,7 @@ interface BookCollectionProps {
   isLoading: boolean;
   isError: boolean;
   onRetry: () => void;
-  onOpenBook: (id: number) => void;
+  onOpenBook: (id: string) => void;
 }
 
 export function BookCollection({ books, isLoading, isError, onRetry, onOpenBook }: BookCollectionProps) {

@@ -1,6 +1,6 @@
 import { api } from "../api";
 export interface User{
-    id: number ; 
+    id: string ; 
     username:string ; 
     email:string ; 
     first_name: string ; 
@@ -35,10 +35,6 @@ export interface LoginResponse {
     message: string; 
 }
 
-export interface RefreshResponse {
-  message: string;
-}
-
 export function login(payload: LoginPayload){
     return api<LoginResponse>("/auth/login/", {
         method: "POST", 
@@ -65,12 +61,6 @@ export function verifyEmail({
   return api<VerifyEmailResponse>(
     `/auth/verify/${uid}/${token}/`
   );
-}
-
-export function refreshToken() {
-  return api<RefreshResponse>("/auth/refresh/", {
-    method: "POST",
-  });
 }
 
 export function logout() {

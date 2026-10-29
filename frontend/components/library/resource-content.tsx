@@ -29,13 +29,13 @@ import { localDateString, recordPageRead } from "@/lib/feature/activity";
 
 const PAGE_READ_THRESHOLD_MS = 90 * 1000;
 
-function ResourceContent({ bookId = 1 }: { bookId?: number }) {
+function ResourceContent({ bookId }: { bookId: string }) {
   const router = useRouter();
   const viewportRef = useRef<HTMLDivElement>(null);
 
   const [currentRenderedPage, setCurrentRenderedPage] = useState(0);
   const [pendingBookPage, setPendingBookPage] = useState<number | null>(null);
-  const [resumeReadyBookId, setResumeReadyBookId] = useState<number | null>(null);
+  const [resumeReadyBookId, setResumeReadyBookId] = useState<string | null>(null);
 
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
 

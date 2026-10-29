@@ -1,21 +1,19 @@
 import { api } from "../api";
+import { uploadPdf } from "./upload-pdf";
 
 export interface Resource {
-  id: number;
+  id: string;
   title: string;
   no_of_pages: number;
   cover_image: string | null;
   processing_status: 'pending' | 'processing' | 'ready' | 'failed';
   is_public: boolean;
-  file_size: number;
+  file_size: number | null;
   created_at: string;
   updated_at: string;
 }
 
-export interface UploadResourcePayload {
-  title: string;
-  object_path: File;
-}
+export type UploadResourcePayload = File;
 
 // Block types from PDF parsing
 export interface Span {
@@ -52,8 +50,8 @@ export type Block = TextBlock | ImageBlock;
 
 // Page structure as returned by backend
 export interface Page {
-  id: number;
-  resource: number;
+  id: string;
+  resource: string;
   page_number: number;
   width: number;
   height: number;
@@ -73,18 +71,12 @@ export function getMyResources() {
  * Upload a new book (PDF)
  */
 export async function uploadResource(payload: UploadResourcePayload) {
-  const formData = new FormData();
-  formData.append('title', payload.title);
-  formData.append('object_path', payload.object_path);
-  return api<Resource>("/resources/upload/", {
-    method: "POST",
-    body: formData,
-  });
+  return uploadPdf(payload);
 }
 
 /**
  * Get pages for a specific resource
  */
-export function getResourcePages(resourceId: number, start: number = 0, end: number = 50) {
+export function getResourcePages(resourceId: string, start: number = 0, end: number = 50) {
   return api<Page[]>(`/resources/${resourceId}/pages/?start=${start}&end=${end}`);
 }

@@ -51,6 +51,8 @@ INSTALLED_APPS = [
    
 ]
 
+AUTH_USER_MODEL = "accounts.User"
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
@@ -98,11 +100,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+DEBUG = os.getenv("DEBUG")
 
 # Database
 DATABASE_URL = config("DATABASE_URL", default="")
 
-if DATABASE_URL:
+if DATABASE_URL !="":
     DATABASES = {
         "default": dj_database_url.parse(
             DATABASE_URL,
@@ -158,7 +161,14 @@ SERVE_MEDIA_FILES = config("SERVE_MEDIA_FILES", default=DEBUG, cast=bool)
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'accounts.authentication.CookieJWTAuthentication',
-    )
+    ), 
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "user": "1000/hour",
+        "upload_initiate": "10/hour",
+    }
 }
 
 # JWT Settings
@@ -200,10 +210,37 @@ BASE_URL = config("BASE_URL", default="").rstrip("/")
 if not DEBUG and BASE_URL.startswith("http://"):
     BASE_URL = "https://" + BASE_URL[len("http://"):]
 
+
+
 # celery related configs 
-
-
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 15 * 60
+
 NINJA_DICTIONARY_API_KEY=os.getenv("NINJA_DICTIONARY_API_KEY")
 MERRIAM_WEBSTER_API_KEY=os.getenv("MERRIAM_WEBSTER_API_KEY")
+
+
+# aws 
+AWS_SECRET_ACCESS_KEY=os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_ACCESS_KEY_ID=os.getenv("AWS_ACCESS_KEY_ID")
+AWS_STORAGE_BUCKET_NAME=os.getenv("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME=os.getenv("AWS_S3_REGION_NAME")
+
+# upload-settings 
+USER_STORAGE_QUOTA = 1024 ** 3 
+MAX_PDF_UPLOAD_SIZE = 1024 ** 3
+UPLOADS_PER_HOUR = 10
+S3_PRESIGNED_URL_TTL = 300            
+
+# caching setting 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION":CELERY_RESULT_BACKEND,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}

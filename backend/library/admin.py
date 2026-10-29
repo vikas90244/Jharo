@@ -6,8 +6,8 @@ from .models import Resource, Page
 
 @admin.register(Resource)
 class ResourceAdmin(admin.ModelAdmin):
-    list_display=["title", "owner", "is_public", "processing_status", "no_of_pages"]
-    list_filter=["is_public", "processing_status"]
+    list_display=["original_filename", "owner", "is_public", "status", "no_of_pages"]
+    list_filter=["is_public", "status"]
     list_editable=["is_public"]
 
 @admin.register(Page)

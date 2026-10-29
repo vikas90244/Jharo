@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient,
 } from "@tanstack/react-query"
 
-import { login, getCurrentUser, register, verifyEmail, refreshToken, logout
+import { login, getCurrentUser, register, verifyEmail, logout
 } from "@/lib/feature/auth"
 
 import type { LoginPayload, RegisterPayload , VerifyEmailPayload} from "@/lib/feature/auth"
@@ -61,12 +61,6 @@ export function useVerifyEmail() {
   return useMutation({
     mutationFn: (data: VerifyEmailPayload) =>
       verifyEmail(data),
-  });
-}
-
-export function useRefreshToken() {
-  return useMutation({
-    mutationFn: refreshToken,
   });
 }
 

@@ -1,4 +1,12 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
+
+function getApiUrl(endpoint: string): string {
+  if (!API_URL) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+  }
+
+  return `${API_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+}
 
 let refreshRequest: Promise<boolean> | null = null;
 
@@ -8,7 +16,7 @@ function canRefreshFor(endpoint: string): boolean {
 
 async function refreshSession(): Promise<boolean> {
   if (!refreshRequest) {
-    refreshRequest = fetch(`${API_URL}/auth/refresh/`, {
+    refreshRequest = fetch(getApiUrl("/auth/refresh/"), {
       method: "POST",
       credentials: "include",
     })
@@ -22,7 +30,7 @@ async function refreshSession(): Promise<boolean> {
 }
 
 async function fetchWithAuthRetry(endpoint: string, options: RequestInit = {}) {
-  const send = () => fetch(`${API_URL}${endpoint}`, {
+  const send = () => fetch(getApiUrl(endpoint), {
     ...options,
     credentials: "include",
   });
@@ -52,6 +60,24 @@ export class ApiError extends Error {
   }
 }
 
+function getErrorMessage(data: unknown): string {
+  if (typeof data === "string" && data.trim()) return data;
+  if (data && typeof data === "object") {
+    const details = data as Record<string, unknown>;
+    for (const key of ["error", "detail", "message"]) {
+      const value = details[key];
+      if (typeof value === "string" && value.trim()) return value;
+    }
+
+    const firstFieldError = Object.values(details).flatMap((value) =>
+      Array.isArray(value) ? value : [value],
+    ).find((value) => typeof value === "string" && value.trim());
+    if (typeof firstFieldError === "string") return firstFieldError;
+  }
+
+  return "Something went wrong. Please try again.";
+}
+
 export async function api<T>(
   endpoint: string,
   options: RequestInit = {},
@@ -68,9 +94,7 @@ export async function api<T>(
 
   if (!response.ok) {
     throw new ApiError(
-      data?.error ||
-      data?.detail ||
-      "Something went wrong! Please try again ",
+      getErrorMessage(data),
       response.status,
       data
     );
@@ -90,9 +114,7 @@ export async function apiBlob(
     const data = await response.json().catch(() => null);
 
     throw new ApiError(
-      data?.error ||
-        data?.detail ||
-        "Something went wrong! Please try again",
+      getErrorMessage(data),
       response.status,
       data
     );

@@ -2,7 +2,7 @@
 # Create your views here.
 import logging
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.contrib.auth.tokens import default_token_generator
@@ -17,6 +17,7 @@ from django.conf import settings
 from rest_framework.permissions import AllowAny
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
 
 class RegisterView(APIView):
     def post(self, request):
@@ -24,46 +25,53 @@ class RegisterView(APIView):
         password = request.data.get('password')
         
         # Create user but mark as inactive
-        user = User.objects.create_user(username=email, email=email, password=password)
-        user.is_active = False
-        user.save()
+        try:
+            user = User.objects.create_user(username=email, email=email, password=password)
+            user.is_active = False
+            user.save()
 
-        # Generate verification token
-        token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        
-        # Create verification link (adjust domain for production)
-        verify_link = f"{settings.FRONTEND_URL}/verify/{uid}/{token}/"
-        html_content= render_to_string(
-            "emails/verify_email.html", 
-            {
-                "verification_url":verify_link, 
-                "expiry_minutes":30
-            }
-        )
-        email_message = EmailMultiAlternatives(
-            subject="Verify your email — Welcome to Jharo",
-            body=(
-                "Welcome to Jharo!\n\n"
-                "Please verify your email to finish "
-                "creating your account.\n\n"
-                f"Verify your email: {verify_link}"
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[email],
-        )
+            # Generate verification token
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            # Create verification link (adjust domain for production)
+            verify_link = f"{settings.FRONTEND_URL}/verify/{uid}/{token}/"
+            html_content= render_to_string(
+                "emails/verify_email.html", 
+                {
+                    "verification_url":verify_link, 
+                    "expiry_minutes":30
+                }
+            )
+            email_message = EmailMultiAlternatives(
+                subject="Verify your email — Welcome to Jharo",
+                body=(
+                    "Welcome to Jharo!\n\n"
+                    "Please verify your email to finish "
+                    "creating your account.\n\n"
+                    f"Verify your email: {verify_link}"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[email],
+            )
 
-        # Attach HTML version
-        email_message.attach_alternative(
-            html_content,
-            "text/html",
-        )
+            # Attach HTML version
+            email_message.attach_alternative(
+                html_content,
+                "text/html",
+            )
 
-        # Send
-        email_message.send(fail_silently=False)
-        return Response({"message": "Check your email for the verification link."}, status=status.HTTP_201_CREATED)
+            # Send
+            email_message.send(fail_silently=False)
+            return Response({"message": "Check your email for the verification link."}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+           logger.exception("Registration failed")
+           raise 
+
 
 class VerifyEmailView(APIView):
+    authentication_classes=[]
+
     def get(self, request, uidb64, token):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
@@ -161,7 +169,6 @@ class LogoutView(APIView):
 
 class CurrentUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
     def get(self, request):
         user = request.user
 

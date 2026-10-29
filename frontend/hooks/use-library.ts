@@ -7,7 +7,7 @@ import type { UploadResourcePayload } from "@/lib/feature/library";
 // QUERY KEYS
 
 export const RESOURCES_QUERY_KEY = ["resources"];
-export const RESOURCE_PAGES_QUERY_KEY = (id: number, start: number, end: number) => [
+export const RESOURCE_PAGES_QUERY_KEY = (id: string, start: number, end: number) => [
   "resource-pages",
   id,
   start,
@@ -47,7 +47,7 @@ export function useUploadResource() {
 /**
  * Hook to fetch pages for a specific resource
  */
-export function useResourcePages(resourceId: number, start: number = 0, end: number = 50) {
+export function useResourcePages(resourceId: string, start: number = 0, end: number = 50) {
   return useQuery({
     queryKey: RESOURCE_PAGES_QUERY_KEY(resourceId, start, end),
     queryFn: () => getResourcePages(resourceId, start, end),
@@ -60,6 +60,6 @@ export function useResourcePages(resourceId: number, start: number = 0, end: num
 /**
  * Alias for backward compatibility with existing code
  */
-export function useGetResourceRange({ id, start = 0, end = 50 }: { id: number; start?: number; end?: number }) {
+export function useGetResourceRange({ id, start = 0, end = 50 }: { id: string; start?: number; end?: number }) {
   return useResourcePages(id, start, end);
 }

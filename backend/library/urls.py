@@ -2,18 +2,21 @@ from django.urls import path
 from .views import (
     ResourceStreamView, 
     ResourceRangeView,
-    ResourceUploadView,
     UserResourcesView,
     PublicResourcesView,
     LearningActivityView,
     LearningActivityDayView,
     RecordLearnedWordView,
     RecordPageReadView,
+    InitiateUploadView, 
+    CompleteUploadView, 
+    AbortUploadView, 
+    ResourceDownloadURLView
 )
 
 urlpatterns = [
     # Upload & Library
-    path('upload/', ResourceUploadView.as_view(), name='resource-upload'),
+    # path('upload/', ResourceUploadView.as_view(), name='resource-upload'),
     path('my-books/', UserResourcesView.as_view(), name='user-resources'),
     path('public-books/', PublicResourcesView.as_view(), name='public-resources'),
     path('activity/', LearningActivityView.as_view(), name='learning-activity'),
@@ -22,7 +25,16 @@ urlpatterns = [
     path('activity/<str:day>/', LearningActivityDayView.as_view(), name='learning-activity-day'),
     
     # Existing endpoints
-    path('<int:pk>/stream/', ResourceStreamView.as_view(), name='document-stream'),
-    # path('prepare/<int:pk>/', PrepareResourceView.as_view(), name='resource-split'),
-    path('<int:pk>/pages/', ResourceRangeView.as_view(), name='resource-range'),
+    path('<uuid:pk>/stream/', ResourceStreamView.as_view(), name='document-stream'),
+    # path('prepare/<uuid:pk>/', PrepareResourceView.as_view(), name='resource-split'),
+    path('<uuid:pk>/pages/', ResourceRangeView.as_view(), name='resource-range'),
+
+
+    # pdf file manager 
+     path( "uploads/initiate/", InitiateUploadView.as_view(), name="upload-initiate" ),
+    path( "uploads/<uuid:resource_id>/complete/", CompleteUploadView.as_view(),
+        name="upload-complete",
+    ),
+    path( "uploads/<uuid:resource_id>/abort/", AbortUploadView.as_view(), name="upload-abort", ),
+    path( "<uuid:resource_id>/download-url/", ResourceDownloadURLView.as_view(), name="resource-download-url", ),
 ]

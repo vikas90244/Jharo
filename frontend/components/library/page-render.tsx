@@ -13,7 +13,7 @@ interface PageRenderProps {
 
 export interface ReadingBlock {
   block: Block;
-  pageId: number;
+  pageId: string;
   isHeading?: boolean;
   isDropCap?: boolean;
 }

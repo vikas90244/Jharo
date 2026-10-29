@@ -8,6 +8,15 @@ import { getTextFontSize } from './reading-text';
 
 import { memo } from "react";
 
+// const S3_PUBLIC_BASE_URL = process.env.NEXT_PUBLIC_S3_BASE_URL?.replace(/\/+$/, "");
+
+// function getImageUrl(src: string): string {
+//   if (/^https?:\/\//i.test(src) || !S3_PUBLIC_BASE_URL) return src;
+
+//   const encodedKey = src.split("/").map(encodeURIComponent).join("/");
+//   return `${S3_PUBLIC_BASE_URL}/${encodedKey}`;
+// }
+
 const ImageBlockRender = memo(({ block }: { block: ImageBlock }) => {
   // Extract image dimensions from bounding box
   const [x0, y0, x1, y1] = block.bbox;
@@ -38,7 +47,7 @@ ImageBlockRender.displayName = 'ImageBlockRender'
 const TextBlockRender = memo(
   ({ block, pageId, viewportWidth, onWordClick, isHeading, isDropCap }: {
     block: TextBlock; 
-    pageId: number;
+    pageId: string;
     viewportWidth: number;
     onWordClick: (word: string, x: number, y: number) => void;
     isHeading?: boolean;

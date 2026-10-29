@@ -1,32 +1,59 @@
+import uuid
+
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User 
 # Create your models here.
+from django.utils import timezone
+from datetime import timedelta
+from django.conf import settings 
+def upload_expiry():
+    return timezone.now() + timedelta(
+        hours=settings.UPLOAD_EXPIRY_HOURS
+    )
+
 
 class Resource(models.Model):
-    title=       models.CharField(max_length=512)
-    owner=       models.ForeignKey(User, on_delete=models.CASCADE, related_name="resources")
-    no_of_pages= models.IntegerField()
-    object_path= models.FileField(upload_to="pdfs/%y/%m/")
-    file_size=   models.PositiveIntegerField(help_text="File size in bytes", null=True)
-    file_hash=   models.CharField(max_length=64, blank=True, null=True, help_text="SHA-256 hash to prevent duplicates")
+    id = models.UUIDField( primary_key=True, default=uuid.uuid4, editable=False, )
 
-    STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('processing', 'Processing'),
-        ('ready', 'Ready'),
-        ('failed', 'Failed'),
+    owner = models.ForeignKey( settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="resources", )
+
+    original_filename = models.CharField(max_length=255)
+    object_key = models.CharField(max_length=1024, unique=True)
+
+    cover_image_key = models.CharField( max_length=1024, blank=True, default="", )
+
+    no_of_pages = models.IntegerField(default=0)
+    content_type = models.CharField(
+        max_length=100,
+        default="application/pdf",
     )
-    processing_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    size_bytes = models.PositiveBigIntegerField(null=True)
+
+    file_hash = models.CharField( max_length=64, blank=True, null=True, help_text="SHA-256 hash to prevent duplicates",
+    )
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        PROCESSING = "processing", "Processing"
+        READY = "ready", "Ready"
+        FAILED = "failed", "Failed"
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.PENDING,
+    )
+
     is_public = models.BooleanField(default=False, db_index=True)
-    cover_image=        models.ImageField(upload_to="covers/%y/%m/",blank=True, null=True)
-    created_at =        models.DateTimeField(auto_now_add=True)
-    updated_at =        models.DateTimeField(auto_now=True)    
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.title} - {self.no_of_pages}({self.processing_status})"
-
+        return self.original_filename
 
 class Page(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="pages")
     page_number= models.PositiveIntegerField()
     width= models.FloatField()
@@ -35,6 +62,7 @@ class Page(models.Model):
 
 
 class WordMeaning(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     word = models.CharField(max_length=120, unique=True)
     definition = models.TextField()
     part_of_speech = models.CharField(max_length=80, blank=True)
@@ -49,7 +77,8 @@ class WordMeaning(models.Model):
 
 
 class DailyLearningActivity(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="learning_activity")
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="learning_activity")
     date = models.DateField(db_index=True)
     words_learned = models.PositiveIntegerField(default=0)
     pages_read = models.PositiveIntegerField(default=0)
@@ -63,7 +92,8 @@ class DailyLearningActivity(models.Model):
 
 
 class PageRead(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="pages_read")
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="pages_read")
     resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="reading_records")
     page_number = models.PositiveIntegerField()
     date = models.DateField(db_index=True)
@@ -77,4 +107,4 @@ class PageRead(models.Model):
             ),
         ]
         indexes = [models.Index(fields=("user", "date"), name="page_read_user_date_idx")]
-        ordering = ("resource__title", "page_number")
+        ordering = ("resource__original_filename", "page_number")

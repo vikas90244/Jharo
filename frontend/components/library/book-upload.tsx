@@ -24,18 +24,12 @@ export function BookUpload() {
     }
 
     setSelectedFile(file);
-    uploadMutation.mutate(
-      {
-        title: file.name.replace(/\.pdf$/i, ""),
-        object_path: file,
+    uploadMutation.mutate(file, {
+      onSuccess: () => {
+        setSelectedFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
       },
-      {
-        onSuccess: () => {
-          setSelectedFile(null);
-          if (fileInputRef.current) fileInputRef.current.value = "";
-        },
-      },
-    );
+    });
   };
 
   const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {

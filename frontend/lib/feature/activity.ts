@@ -54,7 +54,7 @@ export function recordLearnedWord(word: string) {
   });
 }
 
-export function recordPageRead(resourceId: number, pageNumber: number, date: string) {
+export function recordPageRead(resourceId: string, pageNumber: number, date: string) {
   return api<{ message: string }>("/resources/activity/pages/", {
     method: "POST",
     body: JSON.stringify({ resource_id: resourceId, page_number: pageNumber, date }),

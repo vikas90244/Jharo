@@ -8,7 +8,7 @@ import ResourceContent from '@/components/library/resource-content';
 
 export default function ResourcePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const bookId = parseInt(resolvedParams.id);
+  const bookId = resolvedParams.id;
 
   return <ResourceContent bookId={bookId} />;
 }
