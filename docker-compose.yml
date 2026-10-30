@@ -1,39 +1,67 @@
 services:
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: /api
     container_name: jharo_frontend
-    ports:
-      - "3000:3000"
-    env_file:
-      - ./frontend/.env
-    
+    restart: unless-stopped
+
   backend:
     build: ./backend
     container_name: jharo_backend
-    ports:
-      - "8000:8080"
     env_file:
       - ./backend/.env
+    restart: unless-stopped
     depends_on:
       - db
       - redis
+
   celery:
     build: ./backend
     container_name: jharo_celery
     command: ["celery", "-A", "config", "worker", "--loglevel=info"]
     env_file:
       - ./backend/.env
+    restart: unless-stopped
     depends_on:
       - db
       - redis
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ${NGINX_SITE_CONFIG:-./deploy/nginx/bootstrap.conf}:/etc/nginx/conf.d/default.conf:ro
+      - letsencrypt:/etc/letsencrypt:ro
+      - certbot_webroot:/var/www/certbot:ro
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - backend
+
+  certbot:
+    image: certbot/certbot:latest
+    profiles: ["tools"]
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+
   db:
     image: postgres:18
     env_file:
       - ./backend/.env
     volumes:
       - postgres_data:/var/lib/postgresql
+    restart: unless-stopped
+
   redis:
-      image: redis:7-alpine
+    image: redis:7-alpine
+    restart: unless-stopped
   
 volumes:
   postgres_data:
+  letsencrypt:
+  certbot_webroot:
