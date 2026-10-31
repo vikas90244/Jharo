@@ -1,8 +1,8 @@
 .page {
   min-height: 100vh;
   background:
-    radial-gradient(ellipse at 12% 8%, color-mix(in srgb, var(--accent-wood) 9%, transparent), transparent 34rem),
-    radial-gradient(ellipse at 88% 42%, color-mix(in srgb, var(--accent-sky) 7%, transparent), transparent 38rem),
+    radial-gradient(ellipse at 12% 8%, color-mix(in srgb, var(--accent-wood) 10%, transparent), transparent 34rem),
+    radial-gradient(ellipse at 88% 42%, color-mix(in srgb, var(--paper-dark) 70%, transparent), transparent 38rem),
     var(--paper);
 }
 

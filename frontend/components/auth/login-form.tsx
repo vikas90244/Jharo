@@ -57,7 +57,7 @@ function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="w-full max-w-md space-y-6"
+      className="auth-form-card w-full max-w-md space-y-6"
     >
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">
@@ -112,7 +112,7 @@ function LoginForm() {
       <button
         type="submit"
         disabled={loginMutation.isPending}
-        className="w-full rounded-md bg-primary px-4 py-2 text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+        className="auth-submit w-full rounded-md bg-primary px-4 py-2 text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
       >
           {loginMutation.isPending
           ? "Signing in..."

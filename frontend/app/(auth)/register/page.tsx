@@ -9,9 +9,7 @@ export default function RegisterPage() {
     <GuestRoute>
       <main className="login-page register-page">
         <header className="login-header">
-          <div className="login-logo">
-            jharo
-          </div>
+          <Link href="/" className="login-logo"><span className="login-brand-symbol" aria-hidden="true">j</span>Jharo</Link>
 
           <Link href="/" className="back-link">
             ← back home
@@ -21,18 +19,17 @@ export default function RegisterPage() {
         <div className="login-content">
           <div className="login-intro">
             <span className="eyebrow">
-              JOIN THE READING SPACE
+              CREATE AN ACCOUNT
             </span>
 
             <h1 className="font-reading">
-              Make a little
+              Create your
               <br />
-              <em>room.</em>
+              <em>library.</em>
             </h1>
 
             <p>
-              Create your account and keep the
-              stories worth returning to close.
+              Create an account to upload PDF books and read them in Jharo.
             </p>
           </div>
 

@@ -68,7 +68,7 @@ function RegisterForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="w-full max-w-md space-y-6"
+      className="auth-form-card w-full max-w-md space-y-6"
     >
       <div className="space-y-2">
         <h1 className="text-3xl font-bold">
@@ -76,7 +76,7 @@ function RegisterForm() {
         </h1>
 
         <p className="text-muted-foreground">
-          Start building your reading space on Jharo.
+          Create an account to upload and read PDF books.
         </p>
       </div>
 
@@ -151,7 +151,7 @@ function RegisterForm() {
 
       <Button
         type="submit"
-        className="w-full"
+        className="auth-submit w-full"
         disabled={registerMutation.isPending}
       >
         {registerMutation.isPending

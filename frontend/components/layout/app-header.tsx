@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/components/auth/auth-provider";
-import { BookOpen, LogOut, Moon, Sun, UserRound } from "lucide-react";
+import { LogOut, Moon, Sun, UserRound } from "lucide-react";
 import { useLogout } from "@/hooks/use-auth";
 import { useTheme } from "@/components/theme/theme-provider";
 
@@ -62,7 +62,7 @@ export function AppHeader({ hideOnZoom = false, className = "" }: AppHeaderProps
         <div className="app-header__content">
           <div className="app-header__logo">
             <Link href="/library" aria-label="Jharo library home">
-              <BookOpen size={19} strokeWidth={2.1} />
+              <span className="app-header__brand-symbol" aria-hidden="true">j</span>
               <span>Jharo</span>
             </Link>
           </div>

@@ -4,9 +4,11 @@
   display: flex;
   flex-direction: column;
 
-  padding: 36px 48px;
+  padding: 0 clamp(22px, 6vw, 92px);
 
-  background: var(--paper);
+  background:
+    radial-gradient(ellipse at 85% 12%, color-mix(in srgb, var(--accent-wood) 8%, transparent), transparent 32rem),
+    var(--paper);
   color: var(--text-primary);
 }
 
@@ -16,21 +18,40 @@
 
 .login-header {
   width: 100%;
-  max-width: var(--content-width);
+  max-width: 1320px;
+  min-height: 92px;
 
   margin: 0 auto;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid var(--border);
 }
 
 .login-logo {
-  font-size: 1.3rem;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
   color: var(--text-primary);
+  font-family: var(--font-reading), Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  text-decoration: none;
+}
+
+.login-brand-symbol {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50% 50% 50% 7px;
+  background: var(--header-control-bg);
+  color: var(--accent-wood);
+  font-family: Georgia, serif;
+  font-size: 19px;
+  font-style: italic;
 }
 
 .back-link {
@@ -53,7 +74,7 @@
 
 .login-content {
   width: 100%;
-  max-width: var(--content-width);
+  max-width: 1120px;
 
   margin: auto;
 
@@ -62,7 +83,7 @@
 
   align-items: center;
 
-  gap: 120px;
+  gap: clamp(48px, 8vw, 120px);
 }
 
 
@@ -91,7 +112,7 @@
 .login-intro h1 {
   margin: 0;
 
-  font-size: clamp(4rem, 7vw, 7rem);
+  font-size: clamp(3.5rem, 6.5vw, 6rem);
 
   font-weight: 500;
 
@@ -108,7 +129,7 @@
 }
 
 .login-intro p {
-  max-width: 330px;
+  max-width: 390px;
 
   margin-top: 32px;
 
@@ -117,6 +138,51 @@
 
   color: var(--text-secondary);
 }
+
+.auth-form-card {
+  max-width: 440px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+
+  > div:first-child h1 {
+    color: var(--text-primary);
+    font-family: var(--font-reading), Georgia, serif;
+    font-size: 1.8rem;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+  }
+
+  > div:first-child p { color: var(--text-secondary); }
+  label { color: var(--text-primary); }
+  input[data-slot="input"] {
+    height: 38px;
+    padding-inline: 12px;
+    border-color: var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--paper-light);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+  }
+  input[data-slot="input"]::placeholder {
+    font-size: 0.75rem;
+  }
+  input[data-slot="input"]:focus-visible {
+    border-color: var(--accent-wood);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-wood) 15%, transparent);
+  }
+}
+
+.auth-submit {
+  min-height: 38px;
+  border-radius: var(--radius-sm) !important;
+  background: var(--accent-wood) !important;
+  color: var(--text-inverse) !important;
+  font-size: 0.86rem !important;
+}
+.auth-submit:hover:not(:disabled) { background: var(--accent-wood-hover) !important; }
 
 
 /* --------------------------------
@@ -342,7 +408,7 @@
 
   border-radius: 50%;
 
-  background: var(--accent-sky);
+  background: var(--accent-wood);
 
   opacity: 0.7;
 }
@@ -354,26 +420,42 @@
 
 @media (max-width: 800px) {
   .login-page {
-    padding: 28px;
+    padding: 0 24px;
   }
+
+  .login-header { min-height: 74px; }
+
+  .back-link { font-size: 0.78rem; }
 
   .login-content {
-    grid-template-columns: 1fr;
-
-    gap: 56px;
-
-    padding: 80px 0;
+    gap: 38px;
+    padding: 58px 0 72px;
   }
+
+  .login-content { grid-template-columns: 1fr; }
 
   .login-intro h1 {
-    font-size: 4rem;
+    font-size: clamp(3.2rem, 10vw, 4.4rem);
   }
+
+  .login-intro p { margin-top: 18px; }
 
   .login-form {
     padding: 32px;
   }
 
+  .auth-form-card { width: 100%; max-width: none; }
+
   .login-footer {
     display: none;
   }
+}
+
+@media (max-width: 480px) {
+  .login-page { padding: 0 18px; }
+  .login-content { padding: 42px 0 52px; gap: 28px; }
+  .login-intro h1 { font-size: 3.15rem; }
+  .login-intro p { max-width: 310px; font-size: 0.9rem; }
+  .auth-form-card > div:first-child h1 { font-size: 1.55rem; }
+  .auth-form-card .auth-submit { min-height: 36px; font-size: 0.82rem !important; }
 }

@@ -49,6 +49,20 @@
   }
 }
 
+.app-header__brand-symbol {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 50% 50% 50% 6px;
+  background: var(--header-control-bg);
+  color: var(--accent-wood);
+  font-family: Georgia, serif;
+  font-size: 18px;
+  font-style: italic;
+  line-height: 1;
+}
+
 .app-header__nav { display: flex; align-items: center; }
 .app-header__profile { position: relative; }
 

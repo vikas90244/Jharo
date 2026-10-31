@@ -9,9 +9,7 @@ export default function LoginPage() {
     <GuestRoute>
       <main className="login-page">
         <header className="login-header">
-          <div className="login-logo">
-            jharo
-          </div>
+          <Link href="/" className="login-logo"><span className="login-brand-symbol" aria-hidden="true">j</span>Jharo</Link>
 
           <Link href="/" className="back-link">
             ← back home
@@ -31,8 +29,7 @@ export default function LoginPage() {
             </h1>
 
             <p>
-              Pick up where you left off.
-              Your stories are waiting.
+              Sign in to open your PDF library and reading activity.
             </p>
           </div>
 
