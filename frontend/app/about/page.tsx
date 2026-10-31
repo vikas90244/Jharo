@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { MarketingAccountLinks } from "@/components/landing/marketing-account-links";
 
 export const metadata: Metadata = {
   title: "About Jharo’s PDF reading tools",
@@ -20,8 +21,7 @@ export default function AboutPage() {
         <Link className="brand-mark" href="/" aria-label="Jharo home"><span className="brand-symbol" aria-hidden="true">j</span><span>Jharo</span></Link>
         <nav className="marketing-nav" aria-label="Main navigation">
           <Link href="/" className="marketing-nav-link">Home</Link>
-          <Link href="/login" className="marketing-nav-link">Log in</Link>
-          <Link href="/register" className="marketing-button marketing-button-small">Create your library <span aria-hidden="true">↗</span></Link>
+          <MarketingAccountLinks placement="header" />
         </nav>
       </header>
       <article className="about-content">
@@ -49,13 +49,13 @@ export default function AboutPage() {
 
         <section className="about-cta">
           <div><p className="marketing-kicker">GET STARTED</p><h2>Upload a PDF<br /><em>to your library.</em></h2></div>
-          <Link href="/register" className="marketing-button">Create an account <span aria-hidden="true">→</span></Link>
+          <MarketingAccountLinks placement="callout" />
         </section>
       </article>
       <footer className="marketing-footer">
         <Link className="brand-mark footer-brand" href="/"><span className="brand-symbol" aria-hidden="true">j</span><span>Jharo</span></Link>
         <p>PDF library · Reader · Reading activity</p>
-        <nav aria-label="Footer navigation"><Link href="/">Home</Link><Link href="/login">Log in</Link><Link href="/register">Sign up</Link></nav>
+        <nav aria-label="Footer navigation"><Link href="/">Home</Link><MarketingAccountLinks placement="footer" /></nav>
       </footer>
     </main>
   );

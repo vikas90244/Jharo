@@ -42,6 +42,8 @@
 .subtitle {
   margin: 16px 0 0;
   color: var(--text-secondary);
+  font-family: var(--font-reading), Georgia, serif;
+  font-style: italic;
   font-size: 1rem;
   line-height: 1.7;
 }
@@ -200,7 +202,7 @@
   padding: 20px 22px;
   background: color-mix(in srgb, var(--paper-light) 88%, var(--paper));
   border: 1px dashed var(--border-hover);
-  border-radius: var(--radius-md);
+  border-radius: 3px;
   transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 
   @media (max-width: 620px) {
@@ -219,7 +221,7 @@
   place-items: center;
   color: var(--accent-wood);
   background: var(--paper-dark);
-  border-radius: 14px;
+  border-radius: 4px;
 }
 
 .uploadCopy { min-width: 0; }
