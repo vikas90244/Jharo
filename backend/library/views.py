@@ -558,6 +558,3 @@ class RecordPageReadView(APIView):
         return Response({"message": "Page read recorded."}, status=response_status)
 
 
-
-def attach_image_urls(blocks):
-    updated_blocks=[]
