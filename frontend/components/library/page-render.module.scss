@@ -151,10 +151,11 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--popup-backdrop);
-  backdrop-filter: blur(0.75px);
+  // Keep outside-click dismissal without dimming the reading page.
+  background: transparent;
+  backdrop-filter: none;
   z-index: 999;
-  animation: fadeIn 0.15s ease;
+  animation: none;
 }
 
 // Word Popup - Cream aesthetic with smart positioning
@@ -163,17 +164,28 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  min-width: 320px;
-  max-width: 420px;
+  min-width: 280px;
+  max-width: 360px;
   max-height: calc(100dvh - 24px);
   overflow: hidden;
   background: var(--popup-background);
   color: var(--popup-text);
-  border: 1px solid var(--popup-border);
-  border-radius: 18px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2), var(--shadow-lg);
+  border: 1px solid color-mix(in srgb, var(--accent-wood) 32%, var(--popup-border));
+  border-radius: 6px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.08);
   z-index: 1000;
-  animation: popupSlideIn 0.2s ease-out;
+  animation: popupFadeIn 0.14s ease-out;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-wood), color-mix(in srgb, var(--accent-wood) 24%, transparent));
+    pointer-events: none;
+  }
 }
 
 // Popup appearing below word
@@ -186,15 +198,18 @@
   transform-origin: bottom left;
 }
 
-@keyframes popupSlideIn {
+@keyframes popupFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wordPopup { animation: none; }
+  .clickableWord { transition: none; }
 }
 
 .popupHeader {
@@ -202,15 +217,15 @@
   align-items: center;
   justify-content: space-between;
   flex: 0 0 auto;
-  padding: 1rem 1.15rem;
+  padding: 1rem 1rem 0.85rem;
   border-bottom: 1px solid var(--popup-border);
-  background: var(--popup-header);
-  gap: 16px;
-  box-shadow: inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+  background: linear-gradient(135deg, var(--popup-header), var(--popup-background) 78%);
+  gap: 12px;
 }
 
 .popupWord {
-  font-size: 1.3rem;
+  font-size: 1.38rem;
+  line-height: 1.15;
   font-weight: 650;
   color: var(--popup-text);
   margin: 0;
@@ -222,8 +237,8 @@
   border: none;
   line-height: 1;
   color: var(--popup-muted);
-  background: var(--interactive-bg);
-  border: 1px solid var(--popup-border);
+  background: transparent;
+  border: 1px solid transparent;
   cursor: pointer;
   padding: 0;
   width: 34px;
@@ -232,17 +247,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  transition: all 0.15s ease;
+  border-radius: 3px;
+  transition: color 0.15s ease, background-color 0.15s ease;
   
   &:hover {
-    background: var(--interactive-hover);
+    background: color-mix(in srgb, var(--popup-text) 6%, transparent);
     color: var(--popup-text);
-    border-color: var(--border-hover);
+    border-color: var(--popup-border);
   }
   
   &:active {
-    background: var(--interactive-active);
+    background: color-mix(in srgb, var(--popup-text) 10%, transparent);
   }
 }
 
@@ -253,7 +268,7 @@
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--accent-wood) 48%, transparent) transparent;
-  padding: 1.25rem;
+  padding: 1rem 1.1rem 1.1rem;
   background: var(--popup-background);
   line-height: 1.65;
 
@@ -271,13 +286,17 @@
   color: var(--popup-text);
   
   strong {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--popup-text);
-    font-size: 0.875rem;
+    display: table;
+    margin-bottom: 0.55rem;
+    padding: 0.18rem 0.48rem;
+    color: var(--accent-wood-hover);
+    background: color-mix(in srgb, var(--accent-wood) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent-wood) 18%, transparent);
+    border-radius: 3px;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
+    letter-spacing: 0.055em;
+    font-weight: 650;
   }
   
   &:last-child {
@@ -286,7 +305,12 @@
 }
 
 .popupPhonetic { margin: 0 0 0.75rem; color: var(--popup-muted); font-family: Georgia, serif; font-size: 0.92rem; }
-.popupSource { margin: 0 0 0.75rem; color: var(--popup-muted); font-size: 0.78rem; }
+.popupExample {
+  padding: 0.75rem 0.8rem;
+  border-left: 2px solid color-mix(in srgb, var(--accent-wood) 58%, transparent);
+  background: color-mix(in srgb, var(--popup-header) 72%, transparent);
+}
+.popupSource { margin: 0 0 0.75rem; color: var(--popup-muted); font-size: 0.75rem; }
 .popupSource a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .popupMessage { margin: 0; color: var(--popup-muted); font-size: 0.9rem; line-height: 1.5; }
 .popupLearnedStatus {
@@ -294,10 +318,12 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 6px;
-  margin: 1rem 0 0;
-  padding-top: 0.75rem;
+  margin: 0.9rem 0 0;
+  padding: 0.7rem 0.75rem;
   color: var(--popup-text);
-  border-top: 1px solid var(--popup-border);
+  border: 1px solid var(--popup-border);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--popup-header) 70%, transparent);
   font-size: 0.76rem;
   font-weight: 600;
 

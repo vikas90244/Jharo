@@ -70,10 +70,12 @@
 .progressContainer {
   position: relative;
   width: 100%;
-  height: 5px;
+  height: 8px;
   display: flex;
   align-items: center;
-  background: transparent;
+  background: color-mix(in srgb, var(--reader-text) 22%, transparent);
+  border-radius: 999px;
+  transition: background-color 0.18s ease;
 }
 
 .progressFill {
@@ -86,7 +88,7 @@
   box-shadow: 0 0 10px color-mix(in srgb, var(--accent-wood) 34%, transparent);
   transform: translateY(-50%);
   pointer-events: none;
-  transition: width 0.2s ease;
+  transition: width 0.3s ease;
 }
 
 .progressSlider {
@@ -104,8 +106,8 @@
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 12px;
-    height: 12px;
+    width: 15px;
+    height: 15px;
     border-radius: 50%;
     background: var(--accent-wood-hover);
     border: 2px solid var(--reader-page);
@@ -125,8 +127,8 @@
   }
 
   &::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
+    width: 15px;
+    height: 15px;
     border-radius: 50%;
     background: var(--accent-wood-hover);
     border: 2px solid var(--reader-page);
